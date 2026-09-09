@@ -1,0 +1,14 @@
+# 含高德 Web服务 key（服务端密钥，不可公开），仅本机使用
+fetch_routes.py
+geocode.py
+place_search.py
+
+# 地理编码中间产物
+geocode.json
+
+# 预算明文 + 密码 + 加密中间产物（绝不可公开）
+budget_secret.json
+budget.enc.json
+
+__pycache__/
+*.pyc

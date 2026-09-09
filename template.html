@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>青甘遛弯记 · 路书</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1d23;
+    --card-2: #23272f;
+    --text: #e8e8e6;
+    --muted: #9aa0a6;
+    --line: #2a2e35;
+    --accent: #ffd23f;
+    --accent-2: #ff6b35;
+    --ok: #4ade80;
+    --danger: #f87171;
+    --shot-dot: #4a5059;
+    --shot-dot-off: #22262d;
+    --topbar-h: 52px;
+    --tabbar-h: 56px;
+  }
+  body.light {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --card-2: #f3f1ec;
+    --text: #37352f;
+    --muted: #787774;
+    --line: #e9e9e7;
+    --accent: #d97706;
+    --accent-2: #dc2626;
+    --ok: #16a34a;
+    --danger: #dc2626;
+    --shot-dot: #eeeeee;
+    --shot-dot-off: #f5f5f5;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    display: flex; flex-direction: column;
+    height: 100dvh; overflow: hidden;
+  }
+
+  /* ===== 顶栏 ===== */
+  #topbar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 8px; padding-top: calc(6px + env(safe-area-inset-top));
+    background: var(--card); border-bottom: 1px solid var(--line);
+    position: relative; z-index: 20;
+  }
+  .nav-arrow {
+    flex: 0 0 auto; width: 40px; height: 40px;
+    border: 1px solid var(--line); background: var(--card-2); color: var(--text);
+    font-size: 20px; line-height: 1; border-radius: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-arrow:active { background: var(--line); }
+  .nav-arrow:disabled { opacity: .35; }
+  #topbar-mid {
+    flex: 1 1 auto; min-width: 0; text-align: center; line-height: 1.25;
+    cursor: pointer;
+  }
+  #topbar-trip {
+    font-size: 12px; font-weight: 400; color: var(--muted); line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #topbar-title {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #topbar-sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #theme-btn {
+    flex: 0 0 auto; width: 40px; height: 40px; font-size: 18px;
+    border: 1px solid var(--line); background: var(--card-2); border-radius: 10px; cursor: pointer;
+  }
+
+  /* ===== 视图 ===== */
+  .view { display: none; flex: 1 1 auto; min-height: 0; }
+  .view.active { display: flex; flex-direction: column; }
+  .list-view.active { display: block; overflow-y: auto; }
+  .list-view { padding: 16px 16px calc(24px + env(safe-area-inset-bottom)); }
+
+  /* ===== 每日行程视图 ===== */
+  #view-itinerary { overflow: hidden; }
+  .map-stage {
+    flex: 0 0 45vh; min-height: 240px; position: relative;
+    background: #101319; border-bottom: 1px solid var(--line);
+  }
+  .map-stage.fullscreen { position: fixed; inset: 0; z-index: 200; height: 100dvh; flex: none; }
+  #day-map { width: 100%; height: 100%; }
+  .map-actions { position: absolute; bottom: 12px; right: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+  .map-btn {
+    border: none; background: rgba(15,17,21,.82); color: #fff;
+    font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 10px;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.4); line-height: 1;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .map-btn:active { background: rgba(15,17,21,.95); }
+
+  .next-bar {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--card); border-bottom: 1px solid var(--line);
+  }
+  .next-tag { flex: 0 0 auto; font-size: 11px; font-weight: 700; color: #1a1a1a; background: var(--accent); padding: 3px 8px; border-radius: 6px; letter-spacing: .5px; }
+  .next-mid { flex: 1 1 auto; min-width: 0; }
+  .next-name { font-size: 17px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .next-dist { font-size: 14px; color: var(--muted); }
+  .next-name.done { color: var(--ok); }
+  .arrive-btn {
+    flex: 0 0 auto; border: none; background: var(--accent); color: #1a1a1a;
+    font-size: 15px; font-weight: 700; padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  }
+  .arrive-btn:active { opacity: .85; }
+  .arrive-btn:disabled { background: var(--line); color: var(--muted); cursor: default; }
+  .nav-btn {
+    flex: 0 0 auto; border: none; background: var(--accent-2); color: #fff;
+    font-size: 15px; font-weight: 700; padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  }
+  .nav-btn:active { opacity: .85; }
+
+  .scroll-area { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 14px 24px; }
+
+  .sec-title {
+    font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px;
+    margin: 18px 0 6px; text-transform: uppercase;
+  }
+
+  /* 时间线 */
+  .timeline { padding: 0 2px; }
+  .tl-item { display: flex; gap: 10px; padding: 7px 0; position: relative; }
+  .tl-time { flex: 0 0 64px; font-size: 14px; font-weight: 700; color: var(--accent); text-align: right; line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .tl-rail { flex: 0 0 14px; position: relative; }
+  .tl-rail::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .tl-dot { position: absolute; left: 1px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); z-index: 1; border: 2px solid var(--bg); }
+  .tl-dot.note { background: var(--muted); }
+  .tl-desc { flex: 1 1 auto; min-width: 0; font-size: 14px; line-height: 1.55; color: var(--text); padding-top: 3px; }
+  .tl-note .tl-desc { color: var(--muted); font-size: 13px; }
+
+  /* 关键信息（双列网格，直接展示） */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-cell {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; min-width: 0;
+  }
+  .info-cell .ic-head {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 5px;
+  }
+  .info-cell .ic-val { font-size: 14px; line-height: 1.45; color: var(--text); }
+  .info-cell .ic-sub { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .tips-box {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; margin-top: 8px;
+  }
+  .tips-box .tips-head { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 7px; }
+  .tips-box ul { margin: 0; padding-left: 18px; }
+  .tips-box li { font-size: 14px; line-height: 1.55; color: var(--text); margin: 5px 0; }
+
+  /* 行前提示 */
+  .pretrip { background: var(--card-2); border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; margin-top: 10px; }
+  .pretrip .pt-label { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .pretrip .pt-text { font-size: 15px; color: var(--text); margin-top: 4px; line-height: 1.6; }
+
+  /* 途经点横向条（悬浮在地图最上方，箭头连接） */
+  .stops-strip {
+    position: absolute; top: 8px; left: 8px; right: 8px; z-index: 15;
+    display: flex; align-items: center; gap: 4px;
+    overflow-x: auto; overflow-y: hidden; white-space: nowrap;
+    padding: 6px 8px;
+    background: rgba(15,17,21,.82);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .stops-strip::-webkit-scrollbar { display: none; }
+  body.light .stops-strip { background: rgba(255,255,255,.9); border-color: var(--line); }
+  .stop-node {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card-2); border: 1px solid var(--line); border-radius: 999px;
+    padding: 5px 10px 5px 5px; cursor: pointer; color: var(--text);
+    font-size: 14px; line-height: 1;
+  }
+  .stop-node:active { filter: brightness(1.12); }
+  .stop-node:disabled { cursor: default; opacity: .72; }
+  .stop-node .stop-num {
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff; background: var(--muted);
+  }
+  .stop-node .stop-name { max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .stop-node .stop-state { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .stop-node.arrived .stop-num { background: var(--ok); color: #0a1f12; }
+  .stop-node.arrived .stop-name { color: var(--muted); }
+  .stop-node.arrived .stop-state { color: var(--muted); }
+  .stop-node.next { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 1px var(--accent); }
+  .stop-node.next .stop-num { background: var(--accent); color: #1a1a1a; }
+  .stop-node.next .stop-state { color: var(--accent); }
+  .stop-node:disabled .stop-state { color: var(--muted); }
+  .stop-node.optional { opacity: .7; border-style: dashed; }
+  .stop-arrow { flex: 0 0 auto; color: var(--muted); font-size: 15px; line-height: 1; padding: 0 2px; }
+  .stop-nav {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: var(--accent-2); color: #fff;
+    font-size: 14px; font-weight: 700; line-height: 1; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .stop-nav:active { opacity: .8; }
+
+  /* ===== 底部 Tab Bar ===== */
+  #tabbar {
+    flex: 0 0 auto; display: flex; border-top: 1px solid var(--line); background: var(--card);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #tabbar button {
+    flex: 1 1 0; border: none; background: transparent; color: var(--muted);
+    font-size: 12px; font-weight: 600; padding: 9px 2px 8px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    position: relative;
+  }
+  #tabbar button .tb-ico { font-size: 20px; line-height: 1; }
+  #tabbar button .tb-ico svg { display: block; }
+  #tabbar button.active { color: var(--accent); }
+  #tabbar button .tb-badge {
+    position: absolute; top: 4px; left: 50%; transform: translateX(8px);
+    background: #c0392b; color: #fff;
+    font-size: 9px; font-weight: 700; line-height: 16px;
+    min-width: 16px; height: 16px; padding: 0 3px; box-sizing: border-box;
+    border-radius: 50%; text-align: center; white-space: nowrap;
+  }
+
+  /* ===== 日期快速跳转面板 ===== */
+  .dp-mask {
+    position: fixed; inset: 0; background: rgba(0,0,0,.52); z-index: 400;
+    opacity: 0; pointer-events: none; transition: opacity .25s ease;
+  }
+  .dp-mask.open { opacity: 1; pointer-events: auto; }
+  .dp-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
+    background: var(--card); color: var(--text);
+    border-radius: 18px 18px 0 0;
+    padding: 18px 16px calc(20px + env(safe-area-inset-bottom));
+    max-height: 74dvh; display: flex; flex-direction: column;
+    transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.8,.3,1);
+    box-shadow: 0 -8px 30px rgba(0,0,0,.3);
+  }
+  .dp-panel.open { transform: translateY(0); }
+  .dp-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .dp-title { font-size: 18px; font-weight: 800; }
+  .dp-count { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .dp-progress { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: 12px; }
+  .dp-progress-fill { height: 100%; background: var(--accent-2); border-radius: 2px; width: 0; transition: width .3s ease; }
+  .dp-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-top: 14px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto; min-height: 0; padding: 2px 2px 6px;
+  }
+  .dp-day {
+    position: relative; text-align: left; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 11px 12px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-family: inherit; font-size: 14px; line-height: 1.3;
+  }
+  .dp-day:active { filter: brightness(1.08); }
+  .dp-day .dp-line1 { font-size: 15px; font-weight: 700; padding-right: 24px; }
+  .dp-day.walked .dp-line1 { padding-left: 22px; }
+  .dp-day .dp-line2 { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dp-day .dp-check {
+    position: absolute; top: 8px; left: 8px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--ok); color: #fff;
+    font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
+  }
+  .dp-day .dp-badges { position: absolute; top: 6px; right: 7px; display: flex; gap: 2px; font-size: 12px; line-height: 1; }
+  .dp-day.selected { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .dp-day.selected .dp-line2 { color: rgba(255,255,255,.88); }
+  .dp-day.walked { background: var(--card-2); }
+
+  /* ===== 通用列表 / 卡片 ===== */
+  .panel-title { font-size: 18px; font-weight: 800; color: var(--text); margin: 2px 0 12px; }
+  .sum-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 15px; margin: 5px 0; color: var(--text); }
+  .sum-row b { font-weight: 800; }
+  .sum-row .muted { color: var(--muted); font-weight: 400; }
+
+  .simple-list { margin: 0; padding: 0; list-style: none; }
+  .simple-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 2px; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.55;
+  }
+  .simple-list li:last-child { border-bottom: none; }
+  .simple-list .a { flex: 1 1 auto; min-width: 0; color: var(--text); }
+  .simple-list .b { flex: 0 0 auto; color: var(--muted); text-align: right; max-width: 46%; }
+  .note { color: var(--muted); font-size: 13px; }
+
+  .badge-have { font-size: 11px; color: var(--ok); border: 1px solid var(--ok); padding: 1px 7px; border-radius: 8px; font-weight: 700; }
+  .badge-buy { font-size: 11px; color: var(--accent); border: 1px solid var(--accent); padding: 1px 7px; border-radius: 8px; font-weight: 700; }
+
+  /* 行李清单（可勾选） */
+  .pack-head { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+  .pack-head-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .pack-head-row .panel-title { margin: 0; }
+  .pack-total { flex: 0 0 auto; font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .progress-track { height: 6px; border-radius: 3px; background: var(--line); margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .2s; }
+  .sec-title .grp-done { color: var(--accent); }
+  .pack-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer;
+  }
+  .pack-item:last-child { border-bottom: none; }
+  .pack-item.safety { padding-left: 12px; }
+  .pack-item.safety::before {
+    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 2px; background: var(--accent);
+  }
+  .safety-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+  .pack-check {
+    flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--line); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff; font-weight: 800; line-height: 1;
+  }
+  .pack-item.done .pack-check { background: var(--accent); border-color: var(--accent); }
+  .pack-mid { flex: 1 1 auto; min-width: 0; }
+  .pack-name-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pack-name { font-weight: 700; color: var(--text); font-size: 16px; }
+  .pack-item.done .pack-name { color: var(--muted); text-decoration: line-through; }
+  .pack-note { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .pack-qty { flex: 0 0 auto; font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+  /* 预算密码锁 */
+  .budget-lock {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 48px 8px 24px;
+  }
+  .lock-icon { font-size: 44px; line-height: 1; }
+  .lock-title { font-size: 18px; font-weight: 800; color: var(--text); margin-top: 14px; }
+  .lock-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .lock-form { display: flex; gap: 8px; margin-top: 22px; width: 100%; max-width: 280px; }
+  .lock-input {
+    flex: 1 1 auto; min-width: 0; height: 46px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 16px; padding: 0 14px; letter-spacing: 2px; text-align: center;
+  }
+  .lock-input:focus { outline: none; border-color: var(--accent); }
+  .lock-btn {
+    flex: 0 0 auto; height: 46px; padding: 0 18px;
+    background: var(--accent); color: #1a1a1a; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .lock-err { font-size: 13px; color: var(--danger); margin-top: 12px; min-height: 18px; }
+
+  /* 支出预算 */
+  .budget-sum { padding: 16px; }
+  .bs-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .bs-row + .bs-row { margin-top: 4px; }
+  .bs-label { font-size: 13px; color: var(--muted); }
+  .bs-total { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
+  .bs-per { font-size: 13px; color: var(--muted); }
+  .bs-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 14px; background: var(--card-2); }
+  .bs-seg { height: 100%; }
+  .bs-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; }
+  .bs-lg { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .bs-lg i { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+
+  .budget-list { margin-top: 2px; }
+  .bd-item { border-bottom: 1px solid var(--line); }
+  .bd-item:last-child { border-bottom: none; }
+  .bd-main { display: flex; align-items: center; gap: 12px; padding: 14px 2px; cursor: default; }
+  .bd-main.has-sub { cursor: pointer; }
+  .bd-icon { flex: 0 0 auto; font-size: 22px; line-height: 1; }
+  .bd-mid { flex: 1 1 auto; min-width: 0; }
+  .bd-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .bd-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .bd-amount { flex: 0 0 auto; font-size: 16px; font-weight: 700; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .bd-arrow { flex: 0 0 auto; color: var(--muted); font-size: 13px; margin-left: -4px; transition: transform .18s ease; }
+  .bd-item.open .bd-arrow { transform: rotate(90deg); }
+  .bd-detail { display: none; padding: 4px 0 10px 34px; }
+  .bd-item.open .bd-detail { display: block; }
+  .bd-subitem { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .bd-subitem:first-child { border-top: none; }
+  .bd-sub-label { flex: 0 0 auto; font-size: 13px; font-weight: 700; color: var(--accent); min-width: 42px; padding-top: 1px; }
+  .bd-sub-mid { flex: 1 1 auto; min-width: 0; }
+  .bd-sub-name { font-size: 13.5px; color: var(--text); line-height: 1.4; }
+  .bd-sub-room { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .bd-sub-amount { flex: 0 0 auto; font-size: 13.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  /* 拍摄计划 */
+  .sh-group { margin-top: 16px; }
+  .sh-group-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 800; color: var(--text);
+    margin-bottom: 10px;
+  }
+  .sh-group-count { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+  /* 总纲：通栏卡片 */
+  .sh-vlog {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 15px 16px;
+  }
+  .sh-vlog-name { font-size: 16px; font-weight: 700; color: var(--text); }
+
+  /* 转场 / 舞蹈 / 抽象视频：2 列卡片网格 */
+  .sh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sh-card {
+    position: relative; display: flex; flex-direction: column;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px;
+  }
+  .sh-card-top { display: flex; align-items: flex-start; gap: 6px; padding-right: 30px; }
+  .sh-card-name {
+    flex: 1 1 auto; min-width: 0;
+    font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .sh-card-people { flex: 0 0 auto; font-size: 14px; line-height: 1.4; color: #3b82f6; }
+  .sh-card-ref {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: #ef4444; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; line-height: 1; cursor: pointer; text-decoration: none;
+  }
+  .sh-card-scene { font-size: 12.5px; color: #ef4444; line-height: 1.3; margin-top: 8px; }
+
+  /* 日期打卡圆点：一行色点进度带 */
+  .shot-dots { display: flex; align-items: center; margin-top: 10px; }
+  .shot-dot {
+    flex: 1 1 0; min-width: 0; height: 36px;
+    border: none; background: transparent; padding: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shot-dot-core {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--shot-dot); box-sizing: border-box;
+  }
+  .shot-dot.checked .shot-dot-core { background: #ff6b35; }
+  .shot-dot.disabled .shot-dot-core { background: var(--shot-dot-off); }
+  .shot-dot.disabled { cursor: default; }
+
+  /* 待办 */
+  .todo-item { display: flex; gap: 12px; align-items: flex-start; padding: 13px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-checkbox {
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; margin-top: 1px;
+    border: 2px solid var(--line); background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; color: #0a1f12; font-weight: 800;
+  }
+  .todo-item.done .todo-checkbox { background: var(--ok); border-color: var(--ok); }
+  .todo-mid { flex: 1 1 auto; min-width: 0; }
+  .todo-text { font-size: 16px; color: var(--text); line-height: 1.5; }
+  .todo-item.done .todo-text { color: var(--muted); text-decoration: line-through; }
+  .todo-due { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .todo-due.overdue { color: var(--danger); font-weight: 700; }
+
+  /* 全屏弹层 */
+  .overlay {
+    display: none; position: fixed; inset: 0; z-index: 300;
+    flex-direction: column; background: var(--bg);
+  }
+  .overlay.open { display: flex; }
+  .overlay-head {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; padding-top: calc(12px + env(safe-area-inset-top));
+    background: var(--card); border-bottom: 1px solid var(--line); font-size: 16px; font-weight: 700;
+  }
+  .overlay-head button {
+    border: 1px solid var(--line); background: var(--card-2); color: var(--text);
+    font-size: 15px; padding: 7px 13px; border-radius: 9px; cursor: pointer;
+  }
+  #overview-map { flex: 1 1 auto; min-height: 0; }
+
+  /* 地图标记 */
+  .marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; color: #3a3a3a; font-size: 12px; font-weight: 700;
+    border: 2.5px solid transparent;
+    box-shadow: 0 1px 4px rgba(0,0,0,.35); cursor: pointer;
+  }
+  .marker.optional { background: #fff !important; color: #b0b0b0; border-color: #d9d9d9 !important; }
+  .marker-wrap { display: flex; align-items: center; white-space: nowrap; }
+  .marker-label {
+    margin-left: 4px; padding: 1px 8px;
+    background: rgba(20,22,27,.9);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 999px; font-size: 12px; font-weight: 600; color: #e8e8e6;
+    box-shadow: 0 1px 4px rgba(0,0,0,.35); white-space: nowrap; pointer-events: none;
+  }
+  body.light .marker-label { background: rgba(255,255,255,.95); border-color: var(--line); color: #37352f; }
+  .marker-seg {
+    margin-left: 4px; padding: 1px 7px;
+    background: rgba(20,22,27,.9); border: 1px solid transparent;
+    border-radius: 6px; font-size: 11px; font-weight: 600; color: #e8e8e6;
+    white-space: nowrap; pointer-events: none;
+  }
+  body.light .marker-seg { background: rgba(255,255,255,.95); color: #37352f; }
+  .iw { line-height: 1.5; padding: 2px 4px; max-width: 240px; }
+  .iw b { display: block; font-size: 14px; }
+  .iw span { font-size: 12px; color: var(--muted); }
+
+  /* 横屏：地图撑满、文字区折叠到下方 */
+  @media (orientation: landscape) and (max-height: 520px) {
+    #view-itinerary .map-stage { flex: 1 1 auto; min-height: 0; }
+    #view-itinerary .scroll-area { flex: 0 0 46%; }
+  }
+  @media (min-width: 820px) {
+    #view-itinerary { max-width: 640px; margin: 0 auto; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header id="topbar">
+  <button class="nav-arrow" id="prev-day" aria-label="上一天">←</button>
+  <div id="topbar-mid">
+    <div id="topbar-trip">青甘遛弯记</div>
+    <div id="topbar-title"></div>
+    <div id="topbar-sub"></div>
+  </div>
+  <button id="theme-btn" aria-label="切换主题">🌙</button>
+  <button class="nav-arrow" id="next-day" aria-label="下一天">→</button>
+</header>
+
+<main class="view active" id="view-itinerary">
+  <section class="map-stage" id="map-stage">
+    <div id="day-map"></div>
+    <div id="stops-strip" class="stops-strip"></div>
+    <div class="map-actions">
+      <button class="map-btn" id="btn-overview">全程</button>
+      <button class="map-btn" id="btn-fullscreen">⛶</button>
+    </div>
+  </section>
+  <section class="next-bar" id="next-bar"></section>
+  <div class="scroll-area" id="scroll-area"></div>
+</main>
+
+<main class="view list-view" id="view-todos"></main>
+<main class="view list-view" id="view-packing"></main>
+<main class="view list-view" id="view-budget"></main>
+<main class="view list-view" id="view-shooting"></main>
+
+<nav id="tabbar">
+  <button data-tab="itinerary" class="active"><span class="tb-ico">🗺️</span>每日行程</button>
+  <button data-tab="todos"><span class="tb-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="5" y="5" width="14" height="16" rx="2.6" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1.7"/><rect x="9.2" y="2.8" width="5.6" height="4.4" rx="1.6" fill="#f59e0b"/><path d="M8.5 9.2l1 1 1.8-1.9" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12.7" y1="9.2" x2="16" y2="9.2" stroke="#f59e0b" stroke-width="1.7" stroke-linecap="round"/><line x1="8.5" y1="13" x2="16" y2="13" stroke="#f59e0b" stroke-width="1.7" stroke-linecap="round"/><line x1="8.5" y1="16.8" x2="14.2" y2="16.8" stroke="#f59e0b" stroke-width="1.7" stroke-linecap="round"/></svg></span>待办事项</button>
+  <button data-tab="packing"><span class="tb-ico">🎒</span>行李清单</button>
+  <button data-tab="budget"><span class="tb-ico">💰</span>支出预算</button>
+  <button data-tab="shooting"><span class="tb-ico">🎬</span>拍摄计划</button>
+</nav>
+
+<div class="dp-mask" id="day-picker-mask" onclick="closeDayPicker()"></div>
+<div class="dp-panel" id="day-picker" role="dialog" aria-label="选择日期">
+  <div class="dp-head">
+    <span class="dp-title">选择日期</span>
+    <span class="dp-count" id="dp-count"></span>
+  </div>
+  <div class="dp-progress"><div class="dp-progress-fill" id="dp-progress-fill"></div></div>
+  <div class="dp-grid" id="dp-grid"></div>
+</div>
+
+<div class="overlay" id="overlay-overview">
+  <div class="overlay-head">
+    <span>全程总览 · 11 天环线</span>
+    <button id="btn-close-overview">✕ 关闭</button>
+  </div>
+  <div id="overview-map"></div>
+</div>
+
+<script>
+  window._AMapSecurityConfig = { securityJsCode: "__SCODE__" };
+</script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=__KEY__"></script>
+<script>
+const DATA = __JSON_DATA__;
+const BUDGET_ENC = __BUDGET_ENC__;
+
+const TYPE_LABEL = { '交通':'交通', '景点':'景点', '住宿':'住宿', '美食':'美食', '购物':'购物', '观景台':'观景台', '服务区':'服务区', '城市':'城市' };
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function fmtSeg(seg) {
+  if (!seg) return '';
+  const km = seg.km || 0, min = seg.min || 0;
+  let t;
+  if (min >= 60) { const h = Math.floor(min/60), m = min%60; t = m ? (h+'h'+m+'m') : (h+'h'); }
+  else t = min + 'min';
+  return km + 'km' + (t ? ' · ' + t : '');
+}
+
+function toNum(v) { const n = parseFloat(String(v).replace(/[^\d.]/g, '')); return isNaN(n) ? 0 : n; }
+function fmtYuan(v) { return '¥' + toNum(v).toLocaleString('zh-CN', { maximumFractionDigits: 2 }); }
+function fmtPer(v) { return '约 ' + fmtYuan(v); }
+
+/* ---------- 主题 ---------- */
+let theme = 'dark';
+let DAY_COLOR = '#ffd23f';
+function applyTheme(t) {
+  theme = t;
+  document.body.classList.toggle('light', t === 'light');
+  DAY_COLOR = (t === 'light') ? '#d97706' : '#ffd23f';
+  document.getElementById('theme-btn').textContent = (t === 'light') ? '☀️' : '🌙';
+  const style = (t === 'light') ? 'amap://styles/whitesmoke' : 'amap://styles/dark';
+  if (typeof dayMap !== 'undefined' && dayMap) { dayMap.setMapStyle(style); renderDayMap(activeDay); }
+  if (overviewMap) { overviewMap.setMapStyle(style); renderOverviewMap(); }
+  try { localStorage.setItem('qingan-theme', t); } catch(e) {}
+}
+
+/* ---------- 地图 ---------- */
+const dayMap = new AMap.Map('day-map', {
+  zoom: 9, center: [99.2, 38.2],
+  mapStyle: 'amap://styles/dark', viewMode: '2D'
+});
+let overviewMap = null;
+const dayInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -30) });
+const ovInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -34) });
+let dayOverlays = { markers: [], polyline: null };
+let ovMarkers = [];
+let ovPolylines = [];
+
+/* ---------- 进度（每站独立标记已到/未到） ---------- */
+let progressStore = {};   // { di: [已到达站下标...] }
+const TRIP_YEAR = (function(){ const m = String(DATA.dateRange||'').match(/(\d{4})/); return m ? +m[1] : 2026; })();
+function dayDate(di) {
+  const parts = String(DATA.days[di].date || '').split('.').map(Number);
+  if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+  return new Date(TRIP_YEAR, parts[0] - 1, parts[1]);
+}
+function startOfToday() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+// 该天日期是否还未到（今天早于该天日期）
+function dayIsFuture(di) {
+  const dd = dayDate(di);
+  return dd ? startOfToday() < dd : false;
+}
+// 日期未到 → 无已到站；日期已到/已过 → 第一站已到
+function defaultArrived(di) {
+  const dd = dayDate(di);
+  if (dd && startOfToday() < dd) return [];
+  return [0];
+}
+function loadProgress() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('qingan-progress') || '{}') || {};
+    progressStore = {};
+    Object.keys(raw).forEach(k => {
+      const v = raw[k];
+      if (Array.isArray(v)) progressStore[k] = v.filter(n => Number.isInteger(n) && n >= 0);
+    });
+  } catch(e) { progressStore = {}; }
+}
+function saveProgress() { try { localStorage.setItem('qingan-progress', JSON.stringify(progressStore)); } catch(e) {} }
+function getArrived(di) {
+  if (progressStore[di] !== undefined) return progressStore[di].slice().sort((a,b)=>a-b);
+  return defaultArrived(di);
+}
+function nextStopIdx(di) {
+  const arr = getArrived(di);
+  const n = DATA.days[di].stops.length;
+  if (!arr.length) return 0;
+  const mx = arr[arr.length - 1]; // getArrived 已排序
+  return (mx + 1 < n) ? mx + 1 : -1;
+}
+function setArrived(di, idx, on) {
+  let arr = getArrived(di).filter(x => x !== idx);
+  if (on) arr.push(idx);
+  arr.sort((a,b)=>a-b);
+  progressStore[di] = arr;
+  saveProgress();
+}
+
+/* ---------- 地图 marker 构建 ---------- */
+function markerDot(color, num, optional) {
+  const d = document.createElement('div');
+  d.className = 'marker' + (optional ? ' optional' : '');
+  d.textContent = num;
+  if (!optional) d.style.borderColor = color;
+  return d;
+}
+function wrapMarker(dot, label, segText, color) {
+  const w = document.createElement('div');
+  w.className = 'marker-wrap';
+  w.appendChild(dot);
+  if (label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'marker-label';
+    lbl.textContent = label;
+    w.appendChild(lbl);
+  }
+  if (segText) {
+    const seg = document.createElement('div');
+    seg.className = 'marker-seg';
+    seg.style.borderColor = color;
+    seg.textContent = segText;
+    w.appendChild(seg);
+  }
+  return w;
+}
+
+/* ---------- 当日地图 ---------- */
+function renderDayMap(di) {
+  dayOverlays.markers.forEach(m => m.setMap(null));
+  if (dayOverlays.polyline) dayOverlays.polyline.setMap(null);
+  dayOverlays.markers = []; dayOverlays.polyline = null;
+
+  const day = DATA.days[di];
+  const stops = day.stops;
+  const color = DAY_COLOR;
+
+  // 每段「里程·时间」挂在到达站上
+  const mainStops = stops.filter(s => !s.optional);
+  const segs = (DATA.segments && DATA.segments[String(di)]) || [];
+  const segByStop = {};
+  mainStops.forEach((st, k) => { if (k >= 1 && segs[k-1]) segByStop[st.name] = fmtSeg(segs[k-1]); });
+
+  let path = null;
+  const routeStr = DATA.routes ? DATA.routes[String(di)] : null;
+  if (routeStr) {
+    path = routeStr.split(';').map(p => { const q = p.split(','); return [parseFloat(q[0]), parseFloat(q[1])]; });
+  } else {
+    const mp = stops.filter(s => !s.optional).map(s => [s.lng, s.lat]);
+    if (mp.length >= 2) path = mp;
+  }
+  if (path && path.length >= 2) {
+    const pl = new AMap.Polyline({
+      path: path, strokeColor: color, strokeWeight: 4, strokeOpacity: 0.9,
+      lineJoin: 'round', lineCap: 'round', showDir: false
+    });
+    pl.setMap(dayMap);
+    dayOverlays.polyline = pl;
+  }
+
+  stops.forEach((s, idx) => {
+    const dot = markerDot(color, idx + 1, s.optional);
+    const el = wrapMarker(dot, s.name, segByStop[s.name] || null, color);
+    const m = new AMap.Marker({
+      position: [s.lng, s.lat], content: el, offset: new AMap.Pixel(-14, -14),
+      title: s.name, zIndex: s.optional ? 50 : 100
+    });
+    m.setMap(dayMap);
+    m.on('click', () => {
+      dayInfoWindow.setContent('<div class="iw"><b>' + escapeHtml(s.name) + '</b><span>' + day.id + ' · ' + (TYPE_LABEL[s.type] || s.type) + (s.optional ? ' · 可选' : '') + '</span></div>');
+      dayInfoWindow.open(dayMap, m.getPosition());
+    });
+    dayOverlays.markers.push(m);
+  });
+
+  if (dayOverlays.markers.length) dayMap.setFitView(dayOverlays.markers, true, [40, 40, 40, 40]);
+}
+
+/* ---------- 全程总览地图 ---------- */
+const CORE_TYPES = { '景点': 1, '观景台': 1, '美食': 1 };
+function ensureOverviewMap() {
+  if (overviewMap) return;
+  overviewMap = new AMap.Map('overview-map', {
+    zoom: 6, center: [99.2, 38.2],
+    mapStyle: (theme === 'light') ? 'amap://styles/whitesmoke' : 'amap://styles/dark',
+    viewMode: '2D'
+  });
+  renderOverviewMap();
+}
+function renderOverviewMap() {
+  if (!overviewMap) return;
+  ovMarkers.forEach(m => m.setMap(null));
+  ovPolylines.forEach(p => p.setMap(null));
+  ovMarkers = []; ovPolylines = [];
+
+  const color = DAY_COLOR;
+  DATA.days.forEach((day, di) => {
+    let path = null;
+    const routeStr = DATA.routes ? DATA.routes[String(di)] : null;
+    if (routeStr) {
+      path = routeStr.split(';').map(p => { const q = p.split(','); return [parseFloat(q[0]), parseFloat(q[1])]; });
+    } else {
+      const mp = day.stops.filter(s => !s.optional).map(s => [s.lng, s.lat]);
+      if (mp.length >= 2) path = mp;
+    }
+    if (path && path.length >= 2) {
+      const pl = new AMap.Polyline({ path: path, strokeColor: color, strokeWeight: 4, strokeOpacity: 0.9, lineJoin: 'round', lineCap: 'round', showDir: false });
+      pl.setMap(overviewMap);
+      ovPolylines.push(pl);
+    }
+    day.stops.forEach(s => {
+      if (s.optional || !CORE_TYPES[s.type]) return;
+      const dot = markerDot(color, di + 1, false);
+      const m = new AMap.Marker({ position: [s.lng, s.lat], content: dot, offset: new AMap.Pixel(-14, -14), title: s.name, zIndex: 100 });
+      m.setMap(overviewMap);
+      m.on('click', () => {
+        ovInfoWindow.setContent('<div class="iw"><b>' + escapeHtml(s.name) + '</b><span>' + day.id + ' · ' + (TYPE_LABEL[s.type] || s.type) + '</span></div>');
+        ovInfoWindow.open(overviewMap, m.getPosition());
+      });
+      ovMarkers.push(m);
+    });
+  });
+  if (ovMarkers.length) overviewMap.setFitView(ovMarkers, true, [40, 40, 40, 40]);
+}
+
+/* ---------- 顶栏 ---------- */
+function renderTopbar() {
+  const prev = document.getElementById('prev-day');
+  const next = document.getElementById('next-day');
+  const title = document.getElementById('topbar-title');
+  const sub = document.getElementById('topbar-sub');
+  if (activeTab !== 'itinerary') {
+    const names = { 'todos': '待办事项', 'packing': '行李清单', 'budget': '支出预算', 'shooting': '拍摄计划' };
+    title.textContent = names[activeTab];
+    sub.textContent = '';
+    prev.style.display = 'none'; next.style.display = 'none';
+    return;
+  }
+  prev.style.display = ''; next.style.display = '';
+  const day = DATA.days[activeDay];
+  title.textContent = day.id + '・' + day.date + '・' + day.title;
+  sub.textContent = day.distance || '';
+  prev.disabled = (activeDay === 0);
+  next.disabled = (activeDay === DATA.days.length - 1);
+}
+
+/* ---------- 下一站信息条 ---------- */
+function nextSegFor(di, curIdx) {
+  if (curIdx < 0) return null; // 未出发，无“到下一站”里程
+  const day = DATA.days[di];
+  const cur = day.stops[curIdx], next = day.stops[curIdx + 1];
+  const segs = (DATA.segments && DATA.segments[String(di)]) || [];
+  for (const s of segs) if (s.from === cur.name && s.to === next.name) return s;
+  return null;
+}
+function renderNextBar(di) {
+  const day = DATA.days[di];
+  const el = document.getElementById('next-bar');
+  const ni = nextStopIdx(di);
+  if (ni < 0) {
+    el.innerHTML = '<span class="next-tag" style="background:var(--ok)">终点</span>' +
+      '<div class="next-mid"><div class="next-name done">已到达今日终点 · ' + escapeHtml(day.stops[day.stops.length-1].name) + '</div></div>';
+    return;
+  }
+  const next = day.stops[ni];
+  const seg = (ni >= 1) ? nextSegFor(di, ni - 1) : null;
+  const future = dayIsFuture(di);
+  el.innerHTML = '<span class="next-tag">下一站</span>' +
+    '<div class="next-mid"><div class="next-name">' + escapeHtml(next.name) + '</div>' +
+    '<div class="next-dist">' + (seg ? ('还有 ' + fmtSeg(seg)) : (next.optional ? '可选停留点' : (future ? '日期未到 · 未出发' : ''))) + '</div></div>' +
+    '<button class="nav-btn" onclick="amapNavStop(' + di + ',' + ni + ')">🧭 导航</button>' +
+    '<button class="arrive-btn"' + (future ? ' disabled' : ' onclick="markArrived(' + di + ')"') + '>✓ 到达</button>';
+}
+
+/* ---------- 时间线 ---------- */
+function renderTimeline(di) {
+  const items = DATA.days[di].schedule || [];
+  let html = '<div class="sec-title">时间线</div><div class="timeline">';
+  items.forEach(s => {
+    const m = s.match(/^(\d{1,2}:\d{2})(?:-\d{1,2}:\d{2})?\s*(.*)$/);
+    if (m) {
+      html += '<div class="tl-item"><div class="tl-time">' + escapeHtml(m[1]) + '</div>' +
+        '<div class="tl-rail"><span class="tl-dot"></span></div>' +
+        '<div class="tl-desc">' + escapeHtml(m[2]) + '</div></div>';
+    } else {
+      html += '<div class="tl-item tl-note"><div class="tl-time"></div>' +
+        '<div class="tl-rail"><span class="tl-dot note"></span></div>' +
+        '<div class="tl-desc">' + escapeHtml(s) + '</div></div>';
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+/* ---------- 关键信息（双列网格，直接展示） ---------- */
+function renderCards(di) {
+  const day = DATA.days[di];
+  const cell = (ico, label, val, sub) => {
+    if (!val) return '';
+    return '<div class="info-cell"><div class="ic-head"><span>' + ico + '</span>' + label + '</div>' +
+      '<div class="ic-val">' + escapeHtml(val) + '</div>' +
+      (sub ? '<div class="ic-sub">' + escapeHtml(sub) + '</div>' : '') +
+      '</div>';
+  };
+  let html = '<div class="sec-title">关键信息</div><div class="info-grid">';
+  html += cell('🍜', '吃什么', day.food);
+  html += cell('⛽', '加油', day.refuel);
+  html += cell('⛰️', '海拔', day.altitude);
+  html += cell('🏨', '住宿', day.hotel, day.hotelNote);
+  html += '</div>';
+  if (day.tips && day.tips.length) {
+    html += '<div class="tips-box"><div class="tips-head">💡 提示 · ' + day.tips.length + ' 条</div><ul>' +
+      day.tips.map(t => '<li>' + escapeHtml(t) + '</li>').join('') + '</ul></div>';
+  }
+  return html;
+}
+
+/* ---------- 途经点胶囊 ---------- */
+function renderStops(di) {
+  const day = DATA.days[di];
+  const arr = getArrived(di);
+  const ni = nextStopIdx(di);
+  const future = dayIsFuture(di);
+  let html = '';
+  day.stops.forEach((s, idx) => {
+    const arrived = arr.indexOf(idx) >= 0;
+    let cls = 'stop-node';
+    if (arrived) cls += ' arrived';
+    else if (idx === ni && !future) cls += ' next';
+    if (s.optional) cls += ' optional';
+    const state = arrived ? '取消' : (future ? '未到' : '到达');
+    html += '<button class="' + cls + '" onclick="tapStop(' + di + ',' + idx + ')"' +
+      ((future && !arrived) ? ' disabled' : '') + '>' +
+      '<span class="stop-num">' + (idx + 1) + '</span>' +
+      '<span class="stop-name">' + escapeHtml(s.name) + '</span>' +
+      '<span class="stop-state">' + state + '</span>' +
+      '</button>' +
+      '<button class="stop-nav" onclick="amapNavStop(' + di + ',' + idx + ')" title="导航">↗</button>';
+    if (idx < day.stops.length - 1) html += '<span class="stop-arrow">→</span>';
+  });
+  return html;
+}
+function updateStops(di) {
+  const b = document.getElementById('stops-strip');
+  if (!b) return;
+  b.innerHTML = renderStops(di);
+  const nextEl = b.querySelector('.stop-node.next');
+  if (nextEl) b.scrollLeft = Math.max(0, nextEl.offsetLeft - (b.clientWidth - nextEl.offsetWidth) / 2);
+}
+
+/* ---------- 待办 ---------- */
+let todoDone = [];
+function loadTodos() {
+  try {
+    const v = JSON.parse(localStorage.getItem('qingan-todos'));
+    todoDone = Array.isArray(v) ? v : DATA.todos.map(t => !!t.done);
+  } catch(e) { todoDone = DATA.todos.map(t => !!t.done); }
+}
+function saveTodos() { try { localStorage.setItem('qingan-todos', JSON.stringify(todoDone)); } catch(e) {} }
+function renderTodos() {
+  const el = document.getElementById('view-todos');
+  const todos = DATA.todos || [];
+  const done = todoDone.filter(Boolean).length;
+  let html = '<div class="panel-title">📋 待办事项</div>' +
+    '<div class="sum-card"><div class="sum-row"><span class="muted">完成进度</span><b>' + done + ' / ' + todos.length + '</b></div></div>';
+  todos.forEach((t, i) => {
+    const d = todoDone[i];
+    html += '<div class="todo-item' + (d ? ' done' : '') + '" onclick="toggleTodo(' + i + ')">' +
+      '<div class="todo-checkbox">' + (d ? '✓' : '') + '</div>' +
+      '<div class="todo-mid"><div class="todo-text">' + escapeHtml(t.item) + '</div>' +
+      (t.due ? '<div class="todo-due' + (d ? '' : ' overdue') + '">截止 ' + escapeHtml(t.due) + '</div>' : '') +
+      '</div></div>';
+  });
+  el.innerHTML = html;
+  updateTabBadges();
+}
+function toggleTodo(i) { todoDone[i] = !todoDone[i]; saveTodos(); renderTodos(); }
+
+function updateTabBadges() {
+  const remaining = todoDone.filter((d, i) => !d).length;
+  const btn = document.querySelector('#tabbar button[data-tab="todos"]');
+  if (!btn) return;
+  let badge = btn.querySelector('.tb-badge');
+  if (remaining > 0) {
+    if (!badge) { badge = document.createElement('span'); badge.className = 'tb-badge'; btn.appendChild(badge); }
+    badge.textContent = remaining;
+  } else if (badge) badge.remove();
+}
+
+/* ---------- 行李 / 预算 / 拍摄 ---------- */
+const SAFETY_KEYWORDS = ['医用氧气瓶', '防滑链', '车载应急工具包', '布洛芬', '胃药', '葡萄糖'];
+let packingDone = [];
+function loadPacking() {
+  try {
+    const v = JSON.parse(localStorage.getItem('qingan-packing'));
+    packingDone = (Array.isArray(v) && v.length === DATA.packing.length) ? v : DATA.packing.map(() => false);
+  } catch(e) { packingDone = DATA.packing.map(() => false); }
+}
+function savePacking() { try { localStorage.setItem('qingan-packing', JSON.stringify(packingDone)); } catch(e) {} }
+function togglePacking(i) { packingDone[i] = !packingDone[i]; savePacking(); renderPacking(); }
+
+/* 日期打卡（每个拍摄项 × D1-D11） */
+let shootingShots = [];
+function loadShootingShots() {
+  shootingShots = DATA.shooting.map(() => Array(11).fill(false));
+  try {
+    const v = JSON.parse(localStorage.getItem('qingan-shooting-shots'));
+    if (Array.isArray(v)) {
+      for (let i = 0; i < shootingShots.length && i < v.length; i++) {
+        if (Array.isArray(v[i])) {
+          for (let d = 0; d < 11 && d < v[i].length; d++) shootingShots[i][d] = !!v[i][d];
+        }
+      }
+    }
+  } catch(e) {}
+}
+function saveShootingShots() { try { localStorage.setItem('qingan-shooting-shots', JSON.stringify(shootingShots)); } catch(e) {} }
+function toggleShot(i, d) { shootingShots[i][d] = !shootingShots[i][d]; saveShootingShots(); renderShooting(); }
+
+function renderPacking() {
+  const el = document.getElementById('view-packing');
+  const list = DATA.packing || [];
+  const total = list.length;
+  const doneCount = packingDone.filter(Boolean).length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+  const badge = have => have === '已有' ? '<span class="badge-have">已有</span>' : (have === '否' ? '<span class="badge-buy">待购</span>' : '');
+
+  let html = '<div class="pack-head"><div class="pack-head-row">' +
+    '<span class="panel-title">🎒 行李清单</span>' +
+    '<span class="pack-total">已就位 ' + doneCount + '/' + total + '</span>' +
+    '</div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div></div>';
+
+  const groups = { '西宁': [], '深圳': [] };
+  list.forEach((p, i) => { const src = p.source || '深圳'; if (!groups[src]) groups[src] = []; groups[src].push(i); });
+
+  const labels = { '西宁': '🛒 西宁采购', '深圳': '📦 深圳自带 / 寄出' };
+  ['西宁', '深圳'].forEach(src => {
+    const indices = groups[src] || [];
+    if (!indices.length) return;
+    const gDone = indices.filter(i => packingDone[i]).length;
+    html += '<div class="sec-title">' + labels[src] + '（' + indices.length + ' 项）・<span class="grp-done">' + gDone + '/' + indices.length + ' 已就位</span></div>';
+    indices.forEach(i => {
+      const p = list[i];
+      const safety = SAFETY_KEYWORDS.some(k => p.item.indexOf(k) >= 0);
+      const done = packingDone[i];
+      html += '<div class="pack-item' + (safety ? ' safety' : '') + (done ? ' done' : '') + '" onclick="togglePacking(' + i + ')">' +
+        (safety ? '<span class="safety-dot"></span>' : '') +
+        '<span class="pack-check">' + (done ? '✓' : '') + '</span>' +
+        '<div class="pack-mid">' +
+          '<div class="pack-name-line"><span class="pack-name">' + escapeHtml(p.item) + '</span>' + badge(p.have) + '</div>' +
+          (p.note ? '<div class="pack-note">' + escapeHtml(p.note) + '</div>' : '') +
+        '</div>' +
+        '<span class="pack-qty">' + escapeHtml(p.qty) + '</span>' +
+      '</div>';
+    });
+  });
+
+  el.innerHTML = html;
+}
+
+let budgetUnlocked = false;
+let BUDGET_DATA = null;
+
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function unlockBudget() {
+  const input = document.getElementById('budget-pw');
+  const err = document.getElementById('budget-lock-err');
+  const pw = input ? input.value : '';
+  if (!pw) return;
+  try {
+    const salt = b64ToBytes(BUDGET_ENC.salt);
+    const iv = b64ToBytes(BUDGET_ENC.iv);
+    const data = b64ToBytes(BUDGET_ENC.data);
+    const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: BUDGET_ENC.iter, hash: 'SHA-256' },
+      km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv, tagLength: 128 }, key, data);
+    BUDGET_DATA = JSON.parse(new TextDecoder().decode(pt));
+    budgetUnlocked = true;
+    renderBudget();
+  } catch (e) {
+    if (err) err.textContent = '密码错误，请重试';
+    if (input) { input.value = ''; input.focus(); }
+  }
+}
+
+function renderBudget() {
+  const el = document.getElementById('view-budget');
+  if (!budgetUnlocked || !BUDGET_DATA) {
+    el.innerHTML = '<div class="budget-lock">' +
+      '<div class="lock-icon">🔒</div>' +
+      '<div class="lock-title">支出预算已锁定</div>' +
+      '<div class="lock-sub">输入密码后查看</div>' +
+      '<form class="lock-form" onsubmit="event.preventDefault(); unlockBudget();">' +
+      '<input type="password" id="budget-pw" class="lock-input" inputmode="numeric" autocomplete="off" placeholder="请输入密码">' +
+      '<button type="submit" class="lock-btn">解锁</button>' +
+      '</form>' +
+      '<div class="lock-err" id="budget-lock-err"></div>' +
+    '</div>';
+    return;
+  }
+  const b = BUDGET_DATA;
+  const items = (b.breakdown || []).slice().sort((a, z) => toNum(z.amount) - toNum(a.amount));
+  const totalNum = toNum(b.total) || 1;
+
+  let html = '<div class="panel-title">💰 支出预算</div>';
+
+  html += '<div class="sum-card budget-sum">' +
+    '<div class="bs-row"><span class="bs-label">总预算</span><span class="bs-total">' + fmtYuan(b.total) + '</span></div>' +
+    '<div class="bs-row"><span class="bs-label">人均</span><span class="bs-per">' + fmtPer(b.perPerson) + '</span></div>' +
+    '<div class="bs-bar">';
+  items.forEach(x => {
+    const pct = toNum(x.amount) / totalNum * 100;
+    html += '<span class="bs-seg" style="width:' + pct.toFixed(3) + '%;background:' + (x.color || '#9ca3af') + '"></span>';
+  });
+  html += '</div><div class="bs-legend">';
+  items.forEach(x => {
+    const pct = toNum(x.amount) / totalNum * 100;
+    html += '<span class="bs-lg"><i style="background:' + (x.color || '#9ca3af') + '"></i>' + escapeHtml(x.item) + ' ' + pct.toFixed(1) + '%</span>';
+  });
+  html += '</div></div>';
+
+  html += '<div class="budget-list">';
+  items.forEach(x => {
+    const hasItems = Array.isArray(x.items) && x.items.length > 0;
+    const note = x.note ? '・' + escapeHtml(x.note) : '';
+    html += '<div class="bd-item' + (hasItems ? ' open' : '') + '">';
+    html += '<div class="bd-main' + (hasItems ? ' has-sub' : '') + '"' +
+      (hasItems ? ' onclick="this.parentElement.classList.toggle(\'open\')"' : '') + '>';
+    html += '<span class="bd-icon">' + (x.icon || '💰') + '</span>';
+    html += '<div class="bd-mid"><div class="bd-name">' + escapeHtml(x.item) + '</div>' +
+      '<div class="bd-sub">人均 ' + fmtYuan(x.perPerson) + note + '</div></div>';
+    html += '<span class="bd-amount">' + fmtYuan(x.amount) + '</span>';
+    if (hasItems) html += '<span class="bd-arrow">▸</span>';
+    html += '</div>';
+    if (hasItems) {
+      html += '<div class="bd-detail">';
+      x.items.forEach(s => {
+        html += '<div class="bd-subitem">' +
+          '<span class="bd-sub-label">' + escapeHtml(s.label) + '</span>' +
+          '<div class="bd-sub-mid"><div class="bd-sub-name">' + escapeHtml(s.name) + '</div>' +
+          (s.room ? '<div class="bd-sub-room">' + escapeHtml(s.room) + '</div>' : '') + '</div>' +
+          '<span class="bd-sub-amount">' + fmtYuan(s.amount) + '</span>' +
+          '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+function peopleIcon(p) {
+  if (!p) return '';
+  if (p.indexOf('三人') >= 0) return '👥👥';
+  if (p.indexOf('双人') >= 0) return '👥';
+  if (p.indexOf('单人') >= 0 || p.indexOf('个人') >= 0) return '👤';
+  return '';
+}
+
+function dayClickable(scene, d) {
+  const s = scene || '';
+  if (s === '日月山') return d === 1;
+  if (s.indexOf('七彩丹霞') >= 0) return d === 8 || d === 9;
+  return true;
+}
+
+function shotDotsHtml(i) {
+  const scene = DATA.shooting[i].scene;
+  let dots = '';
+  for (let d = 0; d < 11; d++) {
+    const clickable = dayClickable(scene, d);
+    const shot = shootingShots[i][d];
+    const cls = 'shot-dot' + (shot ? ' checked' : '') + (clickable ? '' : ' disabled');
+    const oc = clickable ? ' onclick="toggleShot(' + i + ',' + d + ')"' : '';
+    dots += '<button class="' + cls + '"' + oc + '><span class="shot-dot-core"></span></button>';
+  }
+  return dots;
+}
+
+function renderShooting() {
+  const el = document.getElementById('view-shooting');
+  const GROUPS = [
+    { key: 'vlog', title: '总纲' },
+    { key: '转场', title: '转场技巧' },
+    { key: '舞蹈', title: '舞蹈' },
+    { key: '抽象视频', title: '抽象视频' }
+  ];
+  const buckets = {};
+  GROUPS.forEach(g => { buckets[g.key] = []; });
+  DATA.shooting.forEach((s, i) => { if (buckets[s.type]) buckets[s.type].push(i); });
+
+  let html = '<div class="panel-title">🎬 拍摄计划</div>';
+
+  GROUPS.forEach(g => {
+    const idxs = buckets[g.key] || [];
+    if (!idxs.length) return;
+    html += '<div class="sh-group"><div class="sh-group-title">' + g.title +
+      '<span class="sh-group-count">' + idxs.length + ' 条</span></div>';
+    if (g.key === 'vlog') {
+      idxs.forEach(i => {
+        const s = DATA.shooting[i];
+        html += '<div class="sh-vlog">' +
+          '<span class="sh-vlog-name">' + escapeHtml(s.name) + '</span>' +
+          '<div class="shot-dots">' + shotDotsHtml(i) + '</div>' +
+        '</div>';
+      });
+    } else {
+      html += '<div class="sh-grid">';
+      idxs.forEach(i => {
+        const s = DATA.shooting[i];
+        const ref = s.url ? '<a class="sh-card-ref" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener noreferrer" title="参考" aria-label="参考视频">▶</a>' : '';
+        html += '<div class="sh-card">' +
+          ref +
+          '<div class="sh-card-top">' +
+            '<div class="sh-card-name">' + escapeHtml(s.name) + '</div>' +
+            (s.people ? '<span class="sh-card-people">' + peopleIcon(s.people) + '</span>' : '') +
+          '</div>' +
+          (s.scene ? '<div class="sh-card-scene">' + escapeHtml(s.scene) + '</div>' : '') +
+          '<div class="shot-dots">' + shotDotsHtml(i) + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+/* ---------- 每日渲染 ---------- */
+function renderDay(di) {
+  renderTopbar();
+  renderDayMap(di);
+  renderNextBar(di);
+  updateStops(di);
+  const area = document.getElementById('scroll-area');
+  let html = '';
+  if (di === 0 && DATA.preTrip) {
+    html += '<div class="pretrip"><div class="pt-label">' + escapeHtml(DATA.preTrip.label) + '</div>' +
+      '<div class="pt-text">' + escapeHtml(DATA.preTrip.text) + '</div></div>';
+  }
+  html += renderTimeline(di) + renderCards(di);
+  area.innerHTML = html;
+  area.scrollTop = 0;
+}
+
+function switchDay(delta) {
+  const n = activeDay + delta;
+  if (n < 0 || n >= DATA.days.length) return;
+  activeDay = n;
+  renderDay(activeDay);
+}
+
+function tapStop(di, idx) {
+  const arr = getArrived(di);
+  const arrived = arr.indexOf(idx) >= 0;
+  // 日期未到：不允许标记“到达”（取消仍可用）
+  if (!arrived && dayIsFuture(di)) return;
+  if (arrived) {
+    progressStore[di] = arr.filter(x => x < idx); // 取消：该点及其后全部取消
+  } else {
+    arr.push(idx); arr.sort((a,b)=>a-b);          // 到达：仅标记该点
+    progressStore[di] = arr;
+  }
+  saveProgress();
+  const s = DATA.days[di].stops[idx];
+  dayMap.setCenter([s.lng, s.lat]);
+  dayMap.setZoom(13);
+  dayInfoWindow.setContent('<div class="iw"><b>' + escapeHtml(s.name) + '</b><span>' + DATA.days[di].id + ' · ' + (TYPE_LABEL[s.type] || s.type) + '</span></div>');
+  dayInfoWindow.open(dayMap, [s.lng, s.lat]);
+  renderNextBar(di);
+  updateStops(di);
+}
+
+function markArrived(di) {
+  if (dayIsFuture(di)) return;
+  const ni = nextStopIdx(di);
+  if (ni >= 0) setArrived(di, ni, true);
+  renderNextBar(di);
+  updateStops(di);
+}
+
+/* ---------- 高德导航跳转 ---------- */
+function amapNavigate(name, lng, lat) {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const scheme = isIOS ? 'iosamap://navi?' : 'androidamap://navi?';
+  const app = encodeURIComponent('青甘遛弯记');
+  const poi = encodeURIComponent(name);
+  // dev=0：坐标已是 GCJ-02，高德无需再纠偏；style=0：最快
+  const navi = scheme + 'sourceApplication=' + app + '&poiname=' + poi +
+    '&lat=' + lat + '&lon=' + lng + '&dev=0&style=0';
+  const web = 'https://uri.amap.com/navigation?to=' + lng + ',' + lat + ',' + poi +
+    '&mode=car&coordinate=gaode&callnative=1&src=' + app;
+  // 先尝试直接唤起 App；2.5s 后页面仍在前台 → 多半没装高德，改跳网页版兜底
+  location.href = navi;
+  setTimeout(function () { if (!document.hidden) location.href = web; }, 2500);
+}
+function amapNavStop(di, idx) {
+  const s = DATA.days[di] && DATA.days[di].stops[idx];
+  if (!s || s.lng == null || s.lat == null) return;
+  amapNavigate(s.name, s.lng, s.lat);
+}
+
+/* ---------- 日期快速跳转面板 ---------- */
+const DAY_SHORT = ['西宁本地', '西宁→青海湖→茶卡', '茶卡→翡翠湖', '德令哈→察尔汗', '格尔木→大柴旦', '水上雅丹日出→敦煌', '敦煌全天（莫高窟）', '敦煌→大地之子', '张掖→S213 祁连', '祁连·卓尔山日出→西宁', '西宁返程'];
+
+function dayKm(di) {
+  const m = (DATA.days[di].distance || '').match(/(\d+)\s*km/i);
+  return m ? parseInt(m[1], 10) : 0;
+}
+function dayHasSunrise(di) {
+  const d = DATA.days[di];
+  return (d.title || '').indexOf('日出') >= 0 || (d.routeLabel || '').indexOf('日出') >= 0;
+}
+function dayIsWalked(di) { return !dayIsFuture(di); }
+
+function renderDayPicker() {
+  const total = DATA.days.length;
+  const walked = DATA.days.reduce((n, _, i) => n + (dayIsWalked(i) ? 1 : 0), 0);
+  document.getElementById('dp-count').textContent = '第 ' + (activeDay + 1) + '/' + total + ' 天';
+  document.getElementById('dp-progress-fill').style.width = (walked / total * 100) + '%';
+  let html = '';
+  DATA.days.forEach((day, i) => {
+    const sel = i === activeDay;
+    const walked = !sel && dayIsWalked(i);
+    let cls = 'dp-day';
+    if (sel) cls += ' selected';
+    else if (walked) cls += ' walked';
+    let badges = '';
+    if (dayHasSunrise(i)) badges += '<span>🌅</span>';
+    if (dayKm(i) > 300) badges += '<span>🚗</span>';
+    const check = walked ? '<span class="dp-check">✓</span>' : '';
+    const badgeHtml = badges ? '<span class="dp-badges">' + badges + '</span>' : '';
+    html += '<button class="' + cls + '" onclick="selectDay(' + i + ')">' + check + badgeHtml +
+      '<span class="dp-line1">' + day.id + '・' + day.date + '</span>' +
+      '<span class="dp-line2">' + escapeHtml(DAY_SHORT[i] || day.routeLabel || '') + '</span>' +
+      '</button>';
+  });
+  document.getElementById('dp-grid').innerHTML = html;
+}
+
+function openDayPicker() {
+  renderDayPicker();
+  document.getElementById('day-picker').classList.add('open');
+  document.getElementById('day-picker-mask').classList.add('open');
+}
+function closeDayPicker() {
+  document.getElementById('day-picker').classList.remove('open');
+  document.getElementById('day-picker-mask').classList.remove('open');
+}
+function selectDay(di) {
+  closeDayPicker();
+  if (di === activeDay) return;
+  activeDay = di;
+  renderDay(activeDay);
+}
+
+/* ---------- 页签 ---------- */
+let activeTab = 'itinerary';
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  renderTopbar();
+  if (name === 'itinerary') { setTimeout(() => { dayMap.resize(); renderDayMap(activeDay); }, 0); }
+}
+
+/* ---------- 事件绑定 ---------- */
+document.getElementById('prev-day').addEventListener('click', () => switchDay(-1));
+document.getElementById('next-day').addEventListener('click', () => switchDay(1));
+document.getElementById('topbar-mid').addEventListener('click', () => {
+  if (activeTab === 'itinerary') openDayPicker();
+});
+document.getElementById('theme-btn').addEventListener('click', () => applyTheme(theme === 'light' ? 'dark' : 'light'));
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  const stage = document.getElementById('map-stage');
+  const fs = stage.classList.toggle('fullscreen');
+  document.getElementById('btn-fullscreen').textContent = fs ? '✕ 退出' : '⛶';
+  setTimeout(() => dayMap.resize(), 60);
+});
+document.getElementById('btn-overview').addEventListener('click', () => {
+  document.getElementById('overlay-overview').classList.add('open');
+  ensureOverviewMap();
+  setTimeout(() => { overviewMap.resize(); if (ovMarkers.length) overviewMap.setFitView(ovMarkers, true, [40, 40, 40, 40]); }, 60);
+});
+document.getElementById('btn-close-overview').addEventListener('click', () => {
+  document.getElementById('overlay-overview').classList.remove('open');
+});
+document.getElementById('tabbar').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+/* ---------- 初始化 ---------- */
+let activeDay = 0;
+try { theme = localStorage.getItem('qingan-theme') || 'dark'; } catch(e) {}
+loadProgress();
+loadTodos();
+loadPacking();
+loadShootingShots();
+
+renderPacking();
+renderBudget();
+renderShooting();
+renderTodos();
+applyTheme(theme);
+renderDay(activeDay);
+
+window.addEventListener('load', () => {
+  dayMap.resize();
+  renderDayMap(activeDay);
+});
+</script>
+</body>
+</html>
