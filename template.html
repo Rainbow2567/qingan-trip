@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>青甘遛弯记 · 路书</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="青甘遛弯记">
 <style>
   :root {
     --bg: #0f1115;
@@ -102,6 +107,15 @@
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   }
   .map-btn:active { background: rgba(15,17,21,.95); }
+
+  .map-offline {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    color: var(--muted); text-align: center; padding: 20px; z-index: 5;
+  }
+  .map-offline .mo-ico { font-size: 34px; }
+  .map-offline .mo-main { font-size: 15px; font-weight: 700; color: var(--text); }
+  .map-offline .mo-sub { font-size: 12.5px; line-height: 1.6; max-width: 240px; }
 
   .next-bar {
     flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
@@ -615,13 +629,20 @@ function applyTheme(t) {
 }
 
 /* ---------- 地图 ---------- */
-const dayMap = new AMap.Map('day-map', {
-  zoom: 9, center: [99.2, 38.2],
-  mapStyle: 'amap://styles/dark', viewMode: '2D'
-});
+// 高德 SDK 联网加载；离线时 AMap 未定义 → 跳过地图，仅渲染文字/清单（优雅降级）
+const AMAP_READY = (typeof AMap !== 'undefined' && typeof AMap.Map === 'function');
+let dayMap = null;
 let overviewMap = null;
-const dayInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -30) });
-const ovInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -34) });
+let dayInfoWindow = null;
+let ovInfoWindow = null;
+if (AMAP_READY) {
+  dayMap = new AMap.Map('day-map', {
+    zoom: 9, center: [99.2, 38.2],
+    mapStyle: 'amap://styles/dark', viewMode: '2D'
+  });
+  dayInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -30) });
+  ovInfoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -34) });
+}
 let dayOverlays = { markers: [], polyline: null };
 let ovMarkers = [];
 let ovPolylines = [];
@@ -706,6 +727,7 @@ function wrapMarker(dot, label, segText, color) {
 
 /* ---------- 当日地图 ---------- */
 function renderDayMap(di) {
+  if (!dayMap) return;
   dayOverlays.markers.forEach(m => m.setMap(null));
   if (dayOverlays.polyline) dayOverlays.polyline.setMap(null);
   dayOverlays.markers = []; dayOverlays.polyline = null;
@@ -758,7 +780,7 @@ function renderDayMap(di) {
 /* ---------- 全程总览地图 ---------- */
 const CORE_TYPES = { '景点': 1, '观景台': 1, '美食': 1 };
 function ensureOverviewMap() {
-  if (overviewMap) return;
+  if (!AMAP_READY || overviewMap) return;
   overviewMap = new AMap.Map('overview-map', {
     zoom: 6, center: [99.2, 38.2],
     mapStyle: (theme === 'light') ? 'amap://styles/whitesmoke' : 'amap://styles/dark',
@@ -1254,10 +1276,12 @@ function tapStop(di, idx) {
   }
   saveProgress();
   const s = DATA.days[di].stops[idx];
-  dayMap.setCenter([s.lng, s.lat]);
-  dayMap.setZoom(13);
-  dayInfoWindow.setContent('<div class="iw"><b>' + escapeHtml(s.name) + '</b><span>' + DATA.days[di].id + ' · ' + (TYPE_LABEL[s.type] || s.type) + '</span></div>');
-  dayInfoWindow.open(dayMap, [s.lng, s.lat]);
+  if (dayMap) {
+    dayMap.setCenter([s.lng, s.lat]);
+    dayMap.setZoom(13);
+    dayInfoWindow.setContent('<div class="iw"><b>' + escapeHtml(s.name) + '</b><span>' + DATA.days[di].id + ' · ' + (TYPE_LABEL[s.type] || s.type) + '</span></div>');
+    dayInfoWindow.open(dayMap, [s.lng, s.lat]);
+  }
   renderNextBar(di);
   updateStops(di);
 }
@@ -1353,7 +1377,7 @@ function switchTab(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   renderTopbar();
-  if (name === 'itinerary') { setTimeout(() => { dayMap.resize(); renderDayMap(activeDay); }, 0); }
+  if (name === 'itinerary') { setTimeout(() => { if (dayMap) { dayMap.resize(); renderDayMap(activeDay); } }, 0); }
 }
 
 /* ---------- 事件绑定 ---------- */
@@ -1367,12 +1391,12 @@ document.getElementById('btn-fullscreen').addEventListener('click', () => {
   const stage = document.getElementById('map-stage');
   const fs = stage.classList.toggle('fullscreen');
   document.getElementById('btn-fullscreen').textContent = fs ? '✕ 退出' : '⛶';
-  setTimeout(() => dayMap.resize(), 60);
+  setTimeout(() => { if (dayMap) dayMap.resize(); }, 60);
 });
 document.getElementById('btn-overview').addEventListener('click', () => {
   document.getElementById('overlay-overview').classList.add('open');
   ensureOverviewMap();
-  setTimeout(() => { overviewMap.resize(); if (ovMarkers.length) overviewMap.setFitView(ovMarkers, true, [40, 40, 40, 40]); }, 60);
+  setTimeout(() => { if (overviewMap) { overviewMap.resize(); if (ovMarkers.length) overviewMap.setFitView(ovMarkers, true, [40, 40, 40, 40]); } }, 60);
 });
 document.getElementById('btn-close-overview').addEventListener('click', () => {
   document.getElementById('overlay-overview').classList.remove('open');
@@ -1398,9 +1422,25 @@ renderTodos();
 applyTheme(theme);
 renderDay(activeDay);
 
+// 离线降级：地图需联网加载，文字/清单仍可用
+if (!AMAP_READY) {
+  document.getElementById('day-map').innerHTML =
+    '<div class="map-offline"><span class="mo-ico">📶</span>' +
+    '<span class="mo-main">地图需联网加载</span>' +
+    '<span class="mo-sub">行程 · 待办 · 行李 · 拍摄 · 预算 仍可离线查看</span></div>';
+  const actions = document.querySelector('.map-actions');
+  if (actions) actions.style.display = 'none';
+}
+
+// Service Worker：缓存应用外壳，离线也能打开
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
+  });
+}
+
 window.addEventListener('load', () => {
-  dayMap.resize();
-  renderDayMap(activeDay);
+  if (dayMap) { dayMap.resize(); renderDayMap(activeDay); }
 });
 </script>
 </body>
