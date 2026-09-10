@@ -176,6 +176,28 @@
   .tips-box ul { margin: 0; padding-left: 18px; }
   .tips-box li { font-size: 14px; line-height: 1.55; color: var(--text); margin: 5px 0; }
 
+  /* 门票 */
+  .ticket-box {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; margin-top: 8px;
+  }
+  .ticket-head { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 7px; }
+  .ticket-item { padding: 10px 0; border-top: 1px solid var(--line); }
+  .ticket-item:first-child { border-top: none; padding-top: 0; }
+  .ticket-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ticket-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .ticket-price { font-size: 14px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ticket-status {
+    margin-left: auto; font-size: 11px; font-weight: 700;
+    padding: 2px 9px; border-radius: 999px; border: 1px solid; line-height: 1.5;
+  }
+  .ticket-status.bought { color: var(--ok); border-color: var(--ok); }
+  .ticket-status.onsite { color: var(--muted); border-color: var(--muted); }
+  .ticket-status.reserve { color: var(--danger); border-color: var(--danger); }
+  .ticket-row { display: flex; gap: 8px; font-size: 13px; margin-top: 5px; line-height: 1.5; }
+  .ticket-row .tk-label { flex: 0 0 auto; font-weight: 700; color: var(--muted); opacity: .85; }
+  .ticket-row > span:last-child { color: var(--text); }
+
   /* 行前提示 */
   .pretrip { background: var(--card-2); border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; margin-top: 10px; }
   .pretrip .pt-label { font-size: 13px; font-weight: 700; color: var(--accent); }
@@ -317,38 +339,40 @@
   .badge-have { font-size: 11px; color: var(--ok); border: 1px solid var(--ok); padding: 1px 7px; border-radius: 8px; font-weight: 700; }
   .badge-buy { font-size: 11px; color: var(--accent); border: 1px solid var(--accent); padding: 1px 7px; border-radius: 8px; font-weight: 700; }
 
-  /* 行李清单（可勾选） */
+  /* 行李清单（表格） */
   .pack-head { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
   .pack-head-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .pack-head-row .panel-title { margin: 0; }
-  .pack-total { flex: 0 0 auto; font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
-  .progress-track { height: 6px; border-radius: 3px; background: var(--line); margin-top: 10px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .2s; }
-  .sec-title .grp-done { color: var(--accent); }
-  .pack-item {
-    position: relative; display: flex; align-items: center; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer;
+  .pack-summary { display: flex; gap: 22px; margin-top: 10px; }
+  .pack-summary .ps-item { font-size: 13px; color: var(--muted); }
+  .pack-summary .ps-item b { color: var(--accent); font-size: 15px; font-weight: 800; }
+
+  .pack-table { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 6px; }
+  .pack-row { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
+  .pack-row:last-child { border-bottom: none; }
+  .pack-row.head { background: var(--card-2); }
+  .pack-row.head .pt-name, .pack-row.head .pt-type, .pack-row.head .pt-have, .pack-row.head .pt-packed {
+    font-size: 11px; font-weight: 700; color: var(--muted); padding-top: 7px; padding-bottom: 7px;
   }
-  .pack-item:last-child { border-bottom: none; }
-  .pack-item.safety { padding-left: 12px; }
-  .pack-item.safety::before {
-    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
-    width: 3px; border-radius: 2px; background: var(--accent);
+  .pack-row.packed .pt-item { color: var(--muted); }
+  .pt-name { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 9px 10px; }
+  .pt-item { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; }
+  .pt-item .safety-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--danger); margin-right: 5px; vertical-align: 1px; }
+  .pt-qty { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .pt-note { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+  .pt-type { flex: 0 0 54px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  .type-tag { font-size: 11px; font-weight: 700; color: var(--muted); background: var(--card-2); border: 1px solid var(--line); padding: 3px 6px; border-radius: 6px; white-space: nowrap; }
+  .pt-have, .pt-packed { flex: 0 0 auto; display: flex; align-items: center; padding: 0 8px 0 0; }
+  .tgl {
+    border: 1px solid var(--line); background: transparent; color: var(--muted);
+    font-size: 12px; font-weight: 700; padding: 7px 9px; border-radius: 8px; cursor: pointer;
+    white-space: nowrap; line-height: 1; min-height: 34px;
   }
-  .safety-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
-  .pack-check {
-    flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%;
-    border: 2px solid var(--line); background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; color: #fff; font-weight: 800; line-height: 1;
-  }
-  .pack-item.done .pack-check { background: var(--accent); border-color: var(--accent); }
-  .pack-mid { flex: 1 1 auto; min-width: 0; }
-  .pack-name-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .pack-name { font-weight: 700; color: var(--text); font-size: 16px; }
-  .pack-item.done .pack-name { color: var(--muted); text-decoration: line-through; }
-  .pack-note { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
-  .pack-qty { flex: 0 0 auto; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .tgl.have.on { color: var(--ok); border-color: var(--ok); background: rgba(74,222,128,.1); }
+  .tgl.packed.on { color: var(--accent); border-color: var(--accent); background: rgba(255,210,63,.12); }
+  .tgl:active { filter: brightness(1.12); }
+  .pt-del { display: inline-block; background: transparent; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 0 3px; margin-left: 3px; line-height: 1; vertical-align: 1px; }
+  .pt-del:hover { color: var(--danger); }
 
   /* 预算密码锁 */
   .budget-lock {
@@ -376,9 +400,9 @@
   .budget-sum { padding: 16px; }
   .bs-row { display: flex; align-items: baseline; justify-content: space-between; }
   .bs-row + .bs-row { margin-top: 4px; }
-  .bs-label { font-size: 13px; color: var(--muted); }
-  .bs-total { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
-  .bs-per { font-size: 13px; color: var(--muted); }
+  .bs-label { font-size: 14px; color: var(--muted); }
+  .bs-total { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
+  .bs-per { font-size: 14px; color: var(--muted); }
   .bs-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 14px; background: var(--card-2); }
   .bs-seg { height: 100%; }
   .bs-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; }
@@ -390,12 +414,14 @@
   .bd-item:last-child { border-bottom: none; }
   .bd-main { display: flex; align-items: center; gap: 12px; padding: 14px 2px; cursor: default; }
   .bd-main.has-sub { cursor: pointer; }
-  .bd-icon { flex: 0 0 auto; font-size: 22px; line-height: 1; }
+  .bd-icon { flex: 0 0 auto; font-size: 18px; line-height: 1; }
   .bd-mid { flex: 1 1 auto; min-width: 0; }
   .bd-name { font-size: 16px; font-weight: 700; color: var(--text); }
   .bd-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
   .bd-amount { flex: 0 0 auto; font-size: 16px; font-weight: 700; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .bd-arrow { flex: 0 0 auto; color: var(--muted); font-size: 13px; margin-left: -4px; transition: transform .18s ease; }
+  .bd-del { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; border: none; background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .bd-del:hover { color: var(--danger); background: var(--card-2); }
+  .bd-arrow { display: inline-block; flex: 0 0 auto; color: var(--muted); font-size: 13px; margin-left: -4px; transition: transform .18s ease; }
   .bd-item.open .bd-arrow { transform: rotate(90deg); }
   .bd-detail { display: none; padding: 4px 0 10px 34px; }
   .bd-item.open .bd-detail { display: block; }
@@ -406,6 +432,10 @@
   .bd-sub-name { font-size: 13.5px; color: var(--text); line-height: 1.4; }
   .bd-sub-room { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
   .bd-sub-amount { flex: 0 0 auto; font-size: 13.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .bd-cat-head.tappable { cursor: pointer; }
+  .bd-cat-detail { display: none; padding: 2px 0 10px 34px; }
+  .bd-cat.open .bd-cat-detail { display: block; }
+  .bd-cat.open .bd-arrow { transform: rotate(90deg); }
 
   /* 拍摄计划 */
   .sh-group { margin-top: 16px; }
@@ -472,10 +502,50 @@
   }
   .todo-item.done .todo-checkbox { background: var(--ok); border-color: var(--ok); }
   .todo-mid { flex: 1 1 auto; min-width: 0; }
-  .todo-text { font-size: 16px; color: var(--text); line-height: 1.5; }
+  .todo-text { font-size: 14px; color: var(--text); line-height: 1.5; }
   .todo-item.done .todo-text { color: var(--muted); text-decoration: line-through; }
-  .todo-due { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .todo-due { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .todo-due.overdue { color: var(--danger); font-weight: 700; }
+  .todo-cat {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px;
+    margin: 18px 0 6px;
+  }
+  .todo-cat .cat-rem { font-weight: 400; letter-spacing: 0; font-size: 12px; }
+  .todo-cat .cat-rem.done { color: var(--ok); }
+  .todo-add { display: flex; gap: 8px; margin-top: 14px; }
+  .todo-add-input {
+    flex: 1 1 auto; min-width: 0; height: 44px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 15px; padding: 0 14px;
+  }
+  .todo-add-input::placeholder { color: var(--muted); }
+  .todo-add-input:focus { outline: none; border-color: var(--accent); }
+  .todo-add-btn {
+    flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px;
+    background: var(--accent); color: #1a1a1a; border: none; font-size: 22px; font-weight: 800; cursor: pointer;
+  }
+  .todo-add-date {
+    flex: 0 0 132px; width: 132px; height: 44px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 13px; padding: 0 8px;
+  }
+  .todo-add-date:focus { outline: none; border-color: var(--accent); }
+  .todo-add-date::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+  body.light .todo-add-date::-webkit-calendar-picker-indicator { filter: none; }
+  .todo-add-meta { display: flex; gap: 8px; margin-top: 8px; }
+  .todo-add-select {
+    flex: 1 1 auto; min-width: 0; height: 44px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 14px; padding: 0 10px;
+  }
+  .todo-add-select:focus { outline: none; border-color: var(--accent); }
+  .add-narrow {
+    flex: 0 0 84px; width: 84px; height: 44px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 14px; padding: 0 8px;
+  }
+  .add-narrow:focus { outline: none; border-color: var(--accent); }
 
   /* 全屏弹层 */
   .overlay {
@@ -909,10 +979,36 @@ function renderCards(di) {
   html += cell('⛰️', '海拔', day.altitude);
   html += cell('🏨', '住宿', day.hotel, day.hotelNote);
   html += '</div>';
-  if (day.tips && day.tips.length) {
-    html += '<div class="tips-box"><div class="tips-head">💡 提示 · ' + day.tips.length + ' 条</div><ul>' +
-      day.tips.map(t => '<li>' + escapeHtml(t) + '</li>').join('') + '</ul></div>';
-  }
+  return html;
+}
+
+/* ---------- 提示 ---------- */
+function renderTips(di) {
+  const day = DATA.days[di];
+  if (!day.tips || !day.tips.length) return '';
+  return '<div class="tips-box"><div class="tips-head">💡 提示 · ' + day.tips.length + ' 条</div><ul>' +
+    day.tips.map(t => '<li>' + escapeHtml(t) + '</li>').join('') + '</ul></div>';
+}
+
+/* ---------- 门票 ---------- */
+function renderTickets(di) {
+  const day = DATA.days[di];
+  if (!day.tickets || !day.tickets.length) return '';
+  const STATUS_CLS = { '已购': 'bought', '现场买': 'onsite', '需预约': 'reserve' };
+  let html = '<div class="ticket-box"><div class="ticket-head">🎫 门票</div>';
+  day.tickets.forEach(t => {
+    html += '<div class="ticket-item">' +
+      '<div class="ticket-top">' +
+        '<span class="ticket-name">' + escapeHtml(t.name) + '</span>' +
+        '<span class="ticket-price">' + escapeHtml(t.price) + '</span>' +
+        '<span class="ticket-status ' + (STATUS_CLS[t.status] || 'onsite') + '">' + escapeHtml(t.status) + '</span>' +
+      '</div>';
+    if (t.time) html += '<div class="ticket-row"><span class="tk-label">入园</span><span>' + escapeHtml(t.time) + '</span></div>';
+    if (t.pickup) html += '<div class="ticket-row"><span class="tk-label">取票</span><span>' + escapeHtml(t.pickup) + '</span></div>';
+    if (t.note) html += '<div class="ticket-row"><span class="tk-label">注意</span><span>' + escapeHtml(t.note) + '</span></div>';
+    html += '</div>';
+  });
+  html += '</div>';
   return html;
 }
 
@@ -950,35 +1046,95 @@ function updateStops(di) {
 }
 
 /* ---------- 待办 ---------- */
+const TODO_CATS = [
+  { key: '门票预约', icon: '🎫' },
+  { key: '交通票务', icon: '🚄' },
+  { key: '行李寄送', icon: '📦' },
+  { key: '其他', icon: '🧰' },
+];
 let todoDone = [];
 function loadTodos() {
   try {
     const v = JSON.parse(localStorage.getItem('qingan-todos'));
-    todoDone = Array.isArray(v) ? v : DATA.todos.map(t => !!t.done);
+    todoDone = (Array.isArray(v) && v.length === DATA.todos.length) ? v : DATA.todos.map(t => !!t.done);
   } catch(e) { todoDone = DATA.todos.map(t => !!t.done); }
 }
 function saveTodos() { try { localStorage.setItem('qingan-todos', JSON.stringify(todoDone)); } catch(e) {} }
+let customTodos = [];
+function loadCustomTodos() {
+  try {
+    const v = JSON.parse(localStorage.getItem('qingan-todos-custom'));
+    customTodos = Array.isArray(v) ? v.filter(c => c && c.item) : [];
+  } catch(e) { customTodos = []; }
+}
+function saveCustomTodos() { try { localStorage.setItem('qingan-todos-custom', JSON.stringify(customTodos)); } catch(e) {} }
 function renderTodos() {
   const el = document.getElementById('view-todos');
   const todos = DATA.todos || [];
-  const done = todoDone.filter(Boolean).length;
+  const total = todos.length + customTodos.length;
+  const done = todos.filter((t, i) => todoDone[i]).length + customTodos.filter(c => c.done).length;
   let html = '<div class="panel-title">📋 待办事项</div>' +
-    '<div class="sum-card"><div class="sum-row"><span class="muted">完成进度</span><b>' + done + ' / ' + todos.length + '</b></div></div>';
-  todos.forEach((t, i) => {
-    const d = todoDone[i];
-    html += '<div class="todo-item' + (d ? ' done' : '') + '" onclick="toggleTodo(' + i + ')">' +
-      '<div class="todo-checkbox">' + (d ? '✓' : '') + '</div>' +
-      '<div class="todo-mid"><div class="todo-text">' + escapeHtml(t.item) + '</div>' +
-      (t.due ? '<div class="todo-due' + (d ? '' : ' overdue') + '">截止 ' + escapeHtml(t.due) + '</div>' : '') +
+    '<div class="sum-card"><div class="sum-row"><span class="muted">完成进度</span><b>' + done + ' / ' + total + '</b></div></div>';
+
+  const rowHtml = (isDone, text, due, onclick) =>
+    '<div class="todo-item' + (isDone ? ' done' : '') + '" onclick="' + onclick + '">' +
+      '<div class="todo-checkbox">' + (isDone ? '✓' : '') + '</div>' +
+      '<div class="todo-mid"><div class="todo-text">' + escapeHtml(text) + '</div>' +
+      (due ? '<div class="todo-due' + (isDone ? '' : ' overdue') + '">截止 ' + escapeHtml(due) + '</div>' : '') +
       '</div></div>';
+
+  TODO_CATS.forEach(cat => {
+    const bi = [], ci = [];
+    todos.forEach((t, i) => { if ((t.cat || '其他') === cat.key) bi.push(i); });
+    customTodos.forEach((c, j) => { if ((c.cat || '其他') === cat.key) ci.push(j); });
+    if (!bi.length && !ci.length) return;
+    const rem = bi.filter(i => !todoDone[i]).length + ci.filter(j => !customTodos[j].done).length;
+    html += '<div class="todo-cat"><span>' + cat.icon + ' ' + cat.key + '</span>' +
+      '<span class="cat-rem' + (rem === 0 ? ' done' : '') + '">' + (rem === 0 ? '✓ 完成' : '剩 ' + rem) + '</span></div>';
+    bi.forEach(i => {
+      html += rowHtml(todoDone[i], todos[i].item, todos[i].due, 'toggleTodo(' + i + ')');
+    });
+    ci.forEach(j => {
+      const c = customTodos[j];
+      html += rowHtml(c.done, c.item, c.due, 'toggleCustomTodo(' + j + ')');
+    });
   });
+
+  const catOptions = TODO_CATS.map(c => '<option value="' + c.key + '">' + c.icon + ' ' + c.key + '</option>').join('');
+  html += '<div class="todo-add">' +
+    '<input id="todo-new" class="todo-add-input" type="text" maxlength="60" placeholder="待办内容…" onkeydown="if(event.key===\'Enter\')addCustomTodo()">' +
+    '<button class="todo-add-btn" onclick="addCustomTodo()" title="添加">＋</button>' +
+    '</div>' +
+    '<div class="todo-add-meta">' +
+    '<select id="todo-cat" class="todo-add-select">' + catOptions + '</select>' +
+    '<input id="todo-due" class="todo-add-date" type="date">' +
+    '</div>';
   el.innerHTML = html;
   updateTabBadges();
 }
 function toggleTodo(i) { todoDone[i] = !todoDone[i]; saveTodos(); renderTodos(); }
+function toggleCustomTodo(j) { customTodos[j].done = !customTodos[j].done; saveCustomTodos(); renderTodos(); }
+function fmtDue(d) {
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(d || '');
+  return m ? (m[1] + '.' + (+m[2]) + '.' + (+m[3])) : d;
+}
+function addCustomTodo() {
+  const input = document.getElementById('todo-new');
+  const dueEl = document.getElementById('todo-due');
+  const catEl = document.getElementById('todo-cat');
+  const text = (input.value || '').trim();
+  if (!text) { input.focus(); return; }
+  const due = fmtDue((dueEl && dueEl.value) || '');
+  const cat = (catEl && catEl.value) || '其他';
+  customTodos.push({ item: text, due: due, cat: cat, done: false });
+  saveCustomTodos();
+  renderTodos();
+  const again = document.getElementById('todo-new');
+  if (again) again.focus();
+}
 
 function updateTabBadges() {
-  const remaining = todoDone.filter((d, i) => !d).length;
+  const remaining = todoDone.filter(d => !d).length + customTodos.filter(c => !c.done).length;
   const btn = document.querySelector('#tabbar button[data-tab="todos"]');
   if (!btn) return;
   let badge = btn.querySelector('.tb-badge');
@@ -990,15 +1146,58 @@ function updateTabBadges() {
 
 /* ---------- 行李 / 预算 / 拍摄 ---------- */
 const SAFETY_KEYWORDS = ['医用氧气瓶', '防滑链', '车载应急工具包', '布洛芬', '胃药', '葡萄糖'];
-let packingDone = [];
+let packingHave = [];
+let packingPacked = [];
 function loadPacking() {
+  const n = DATA.packing.length;
+  packingHave = DATA.packing.map(p => p.have === '已有');
+  packingPacked = DATA.packing.map(() => false);
   try {
-    const v = JSON.parse(localStorage.getItem('qingan-packing'));
-    packingDone = (Array.isArray(v) && v.length === DATA.packing.length) ? v : DATA.packing.map(() => false);
-  } catch(e) { packingDone = DATA.packing.map(() => false); }
+    const h = JSON.parse(localStorage.getItem('qingan-packing-have'));
+    if (Array.isArray(h) && h.length === n) packingHave = h.map(Boolean);
+  } catch(e) {}
+  try {
+    const k = JSON.parse(localStorage.getItem('qingan-packing-packed'));
+    if (Array.isArray(k) && k.length === n) packingPacked = k.map(Boolean);
+    else {
+      // 旧版「已就位」勾选迁移为「已装箱」
+      const old = JSON.parse(localStorage.getItem('qingan-packing'));
+      if (Array.isArray(old) && old.length === n) packingPacked = old.map(Boolean);
+    }
+  } catch(e) {}
 }
-function savePacking() { try { localStorage.setItem('qingan-packing', JSON.stringify(packingDone)); } catch(e) {} }
-function togglePacking(i) { packingDone[i] = !packingDone[i]; savePacking(); renderPacking(); }
+function savePacking() {
+  try { localStorage.setItem('qingan-packing-have', JSON.stringify(packingHave)); } catch(e) {}
+  try { localStorage.setItem('qingan-packing-packed', JSON.stringify(packingPacked)); } catch(e) {}
+}
+function toggleHave(i) { packingHave[i] = !packingHave[i]; savePacking(); renderPacking(); }
+function togglePacked(i) { packingPacked[i] = !packingPacked[i]; savePacking(); renderPacking(); }
+const PACK_TYPES = ['药品', '食品', '车辆', '日用', '洗漱', '衣物', '电子', '证件'];
+const PACK_SOURCES = ['西宁', '深圳'];
+let customPacking = [];
+function loadCustomPacking() {
+  try {
+    const v = JSON.parse(localStorage.getItem('qingan-packing-custom'));
+    customPacking = Array.isArray(v) ? v.filter(c => c && c.item) : [];
+  } catch(e) { customPacking = []; }
+}
+function saveCustomPacking() { try { localStorage.setItem('qingan-packing-custom', JSON.stringify(customPacking)); } catch(e) {} }
+function toggleCustomHave(j) { customPacking[j].have = !customPacking[j].have; saveCustomPacking(); renderPacking(); }
+function toggleCustomPacked(j) { customPacking[j].packed = !customPacking[j].packed; saveCustomPacking(); renderPacking(); }
+function deleteCustomPacking(j) { customPacking.splice(j, 1); saveCustomPacking(); renderPacking(); }
+function addCustomPacking() {
+  const input = document.getElementById('pack-new');
+  const item = (input.value || '').trim();
+  if (!item) { input.focus(); return; }
+  const type = (document.getElementById('pack-type') || {}).value || '日用';
+  const source = (document.getElementById('pack-source') || {}).value || '深圳';
+  const qty = ((document.getElementById('pack-qty') || {}).value || '').trim();
+  customPacking.push({ item: item, qty: qty, source: source, type: type, have: false, packed: false, note: '' });
+  saveCustomPacking();
+  renderPacking();
+  const again = document.getElementById('pack-new');
+  if (again) again.focus();
+}
 
 /* 日期打卡（每个拍摄项 × D1-D11） */
 let shootingShots = [];
@@ -1021,47 +1220,88 @@ function toggleShot(i, d) { shootingShots[i][d] = !shootingShots[i][d]; saveShoo
 function renderPacking() {
   const el = document.getElementById('view-packing');
   const list = DATA.packing || [];
-  const total = list.length;
-  const doneCount = packingDone.filter(Boolean).length;
-  const pct = total ? Math.round(doneCount / total * 100) : 0;
-  const badge = have => have === '已有' ? '<span class="badge-have">已有</span>' : (have === '否' ? '<span class="badge-buy">待购</span>' : '');
+  const total = list.length + customPacking.length;
+  const haveCount = packingHave.filter(Boolean).length + customPacking.filter(c => c.have).length;
+  const packedCount = packingPacked.filter(Boolean).length + customPacking.filter(c => c.packed).length;
 
   let html = '<div class="pack-head"><div class="pack-head-row">' +
     '<span class="panel-title">🎒 行李清单</span>' +
-    '<span class="pack-total">已就位 ' + doneCount + '/' + total + '</span>' +
-    '</div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div></div>';
+    '</div><div class="pack-summary">' +
+    '<span class="ps-item">已有 <b>' + haveCount + '</b>/' + total + '</span>' +
+    '<span class="ps-item">已装箱 <b>' + packedCount + '</b>/' + total + '</span>' +
+    '</div></div>';
+
+  const packRow = (name, qty, note, type, have, packed, haveFn, packedFn, del) => {
+    const safety = SAFETY_KEYWORDS.some(k => name.indexOf(k) >= 0);
+    return '<div class="pack-row' + (packed ? ' packed' : '') + '">' +
+      '<div class="pt-name">' +
+        '<span class="pt-item">' + (safety ? '<span class="safety-dot"></span>' : '') + escapeHtml(name) +
+          (qty ? '<span class="pt-qty">' + escapeHtml(qty) + '</span>' : '') + (del || '') + '</span>' +
+        (note ? '<span class="pt-note">' + escapeHtml(note) + '</span>' : '') +
+      '</div>' +
+      '<div class="pt-type"><span class="type-tag">' + escapeHtml(type || '其他') + '</span></div>' +
+      '<div class="pt-have"><button class="tgl have' + (have ? ' on' : '') + '" onclick="' + haveFn + '">' + (have ? '已有' : '待购') + '</button></div>' +
+      '<div class="pt-packed"><button class="tgl packed' + (packed ? ' on' : '') + '" onclick="' + packedFn + '">' + (packed ? '已装箱' : '未装箱') + '</button></div>' +
+    '</div>';
+  };
 
   const groups = { '西宁': [], '深圳': [] };
-  list.forEach((p, i) => { const src = p.source || '深圳'; if (!groups[src]) groups[src] = []; groups[src].push(i); });
-
+  list.forEach((p, i) => { const src = p.source || '深圳'; if (!groups[src]) groups[src] = []; groups[src].push({ b: true, i }); });
+  customPacking.forEach((c, j) => { const src = c.source || '深圳'; if (!groups[src]) groups[src] = []; groups[src].push({ b: false, j }); });
   const labels = { '西宁': '🛒 西宁采购', '深圳': '📦 深圳自带 / 寄出' };
+
   ['西宁', '深圳'].forEach(src => {
-    const indices = groups[src] || [];
-    if (!indices.length) return;
-    const gDone = indices.filter(i => packingDone[i]).length;
-    html += '<div class="sec-title">' + labels[src] + '（' + indices.length + ' 项）・<span class="grp-done">' + gDone + '/' + indices.length + ' 已就位</span></div>';
-    indices.forEach(i => {
-      const p = list[i];
-      const safety = SAFETY_KEYWORDS.some(k => p.item.indexOf(k) >= 0);
-      const done = packingDone[i];
-      html += '<div class="pack-item' + (safety ? ' safety' : '') + (done ? ' done' : '') + '" onclick="togglePacking(' + i + ')">' +
-        (safety ? '<span class="safety-dot"></span>' : '') +
-        '<span class="pack-check">' + (done ? '✓' : '') + '</span>' +
-        '<div class="pack-mid">' +
-          '<div class="pack-name-line"><span class="pack-name">' + escapeHtml(p.item) + '</span>' + badge(p.have) + '</div>' +
-          (p.note ? '<div class="pack-note">' + escapeHtml(p.note) + '</div>' : '') +
-        '</div>' +
-        '<span class="pack-qty">' + escapeHtml(p.qty) + '</span>' +
+    const rows = groups[src] || [];
+    if (!rows.length) return;
+    html += '<div class="sec-title">' + labels[src] + '（' + rows.length + ' 项）</div>';
+    html += '<div class="pack-table">' +
+      '<div class="pack-row head">' +
+        '<div class="pt-name">物品</div>' +
+        '<div class="pt-type">类型</div>' +
+        '<div class="pt-have">已有</div>' +
+        '<div class="pt-packed">已装箱</div>' +
       '</div>';
+    rows.forEach(r => {
+      if (r.b) {
+        const p = list[r.i];
+        html += packRow(p.item, p.qty, p.note, p.type, packingHave[r.i], packingPacked[r.i],
+          'toggleHave(' + r.i + ')', 'togglePacked(' + r.i + ')', '');
+      } else {
+        const c = customPacking[r.j];
+        html += packRow(c.item, c.qty, c.note, c.type, c.have, c.packed,
+          'toggleCustomHave(' + r.j + ')', 'toggleCustomPacked(' + r.j + ')',
+          '<button class="pt-del" onclick="deleteCustomPacking(' + r.j + ')" title="删除">✕</button>');
+      }
     });
+    html += '</div>';
   });
+
+  const typeOptions = PACK_TYPES.map(t => '<option value="' + t + '">' + t + '</option>').join('');
+  const srcOptions = PACK_SOURCES.map(s => '<option value="' + s + '">' + (s === '西宁' ? '西宁采购' : '深圳自带') + '</option>').join('');
+  html += '<div class="todo-add">' +
+    '<input id="pack-new" class="todo-add-input" type="text" maxlength="40" placeholder="新增物品…" onkeydown="if(event.key===\'Enter\')addCustomPacking()">' +
+    '<button class="todo-add-btn" onclick="addCustomPacking()" title="添加">＋</button>' +
+    '</div>' +
+    '<div class="todo-add-meta">' +
+    '<select id="pack-type" class="todo-add-select">' + typeOptions + '</select>' +
+    '<select id="pack-source" class="todo-add-select">' + srcOptions + '</select>' +
+    '<input id="pack-qty" class="add-narrow" type="text" placeholder="数量">' +
+    '</div>';
 
   el.innerHTML = html;
 }
 
 let budgetUnlocked = false;
 let BUDGET_DATA = null;
-
+const BUDGET_CATS = [
+  { key: '住宿', icon: '🏨', color: '#f97316' },
+  { key: '交通', icon: '🚗', color: '#3b82f6' },
+  { key: '门票', icon: '🎫', color: '#9ca3af' },
+  { key: '餐饮', icon: '🍜', color: '#f59e0b' },
+  { key: '购物', icon: '🛍️', color: '#a855f7' },
+  { key: '其他', icon: '🧰', color: '#06b6d4' },
+];
+function catOf(k) { return BUDGET_CATS.find(c => c.key === k) || BUDGET_CATS[BUDGET_CATS.length - 1]; }
 function b64ToBytes(b64) {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
@@ -1109,14 +1349,15 @@ function renderBudget() {
     return;
   }
   const b = BUDGET_DATA;
-  const items = (b.breakdown || []).slice().sort((a, z) => toNum(z.amount) - toNum(a.amount));
-  const totalNum = toNum(b.total) || 1;
+  const baseItems = (b.breakdown || []).slice();
+  const items = baseItems.sort((a, z) => toNum(z.amount) - toNum(a.amount));
+  const totalNum = toNum(b.total);
 
   let html = '<div class="panel-title">💰 支出预算</div>';
 
   html += '<div class="sum-card budget-sum">' +
-    '<div class="bs-row"><span class="bs-label">总预算</span><span class="bs-total">' + fmtYuan(b.total) + '</span></div>' +
-    '<div class="bs-row"><span class="bs-label">人均</span><span class="bs-per">' + fmtPer(b.perPerson) + '</span></div>' +
+    '<div class="bs-row"><span class="bs-label">总预算</span><span class="bs-total">' + fmtYuan(totalNum) + '</span></div>' +
+    '<div class="bs-row"><span class="bs-label">人均</span><span class="bs-per">' + fmtPer(toNum(b.perPerson)) + '</span></div>' +
     '<div class="bs-bar">';
   items.forEach(x => {
     const pct = toNum(x.amount) / totalNum * 100;
@@ -1130,31 +1371,37 @@ function renderBudget() {
   html += '</div></div>';
 
   html += '<div class="budget-list">';
-  items.forEach(x => {
-    const hasItems = Array.isArray(x.items) && x.items.length > 0;
-    const note = x.note ? '・' + escapeHtml(x.note) : '';
-    html += '<div class="bd-item' + (hasItems ? ' open' : '') + '">';
-    html += '<div class="bd-main' + (hasItems ? ' has-sub' : '') + '"' +
-      (hasItems ? ' onclick="this.parentElement.classList.toggle(\'open\')"' : '') + '>';
-    html += '<span class="bd-icon">' + (x.icon || '💰') + '</span>';
-    html += '<div class="bd-mid"><div class="bd-name">' + escapeHtml(x.item) + '</div>' +
-      '<div class="bd-sub">人均 ' + fmtYuan(x.perPerson) + note + '</div></div>';
-    html += '<span class="bd-amount">' + fmtYuan(x.amount) + '</span>';
-    if (hasItems) html += '<span class="bd-arrow">▸</span>';
-    html += '</div>';
-    if (hasItems) {
-      html += '<div class="bd-detail">';
-      x.items.forEach(s => {
+  BUDGET_CATS.forEach(cat => {
+    const group = items.filter(x => catOf(x.cat).key === cat.key);
+    if (!group.length) return;
+    const catSum = group.reduce((s, x) => s + toNum(x.amount), 0);
+    const catPer = group.reduce((s, x) => s + toNum(x.perPerson), 0);
+    html += '<div class="bd-cat">' +
+      '<div class="todo-cat bd-cat-head tappable" onclick="this.parentElement.classList.toggle(\'open\')">' +
+      '<span>' + cat.icon + ' ' + cat.key + '</span>' +
+      '<span class="cat-rem">小计 ' + fmtYuan(catSum) + ' · 人均 ' + fmtYuan(catPer) + ' <span class="bd-arrow">▸</span></span></div>';
+    html += '<div class="bd-cat-detail">';
+    group.forEach(x => {
+      if (Array.isArray(x.items) && x.items.length > 0) {
+        x.items.forEach(s => {
+          html += '<div class="bd-subitem">' +
+            '<span class="bd-sub-label">' + escapeHtml(s.label) + '</span>' +
+            '<div class="bd-sub-mid"><div class="bd-sub-name">' + escapeHtml(s.name) + '</div>' +
+            (s.room ? '<div class="bd-sub-room">' + escapeHtml(s.room) + '</div>' : '') + '</div>' +
+            '<span class="bd-sub-amount">' + fmtYuan(s.amount) + '</span>' +
+            '</div>';
+        });
+      } else {
+        const note = x.note ? '・' + escapeHtml(x.note) : '';
         html += '<div class="bd-subitem">' +
-          '<span class="bd-sub-label">' + escapeHtml(s.label) + '</span>' +
-          '<div class="bd-sub-mid"><div class="bd-sub-name">' + escapeHtml(s.name) + '</div>' +
-          (s.room ? '<div class="bd-sub-room">' + escapeHtml(s.room) + '</div>' : '') + '</div>' +
-          '<span class="bd-sub-amount">' + fmtYuan(s.amount) + '</span>' +
+          '<span class="bd-sub-label">' + (x.icon || '💰') + '</span>' +
+          '<div class="bd-sub-mid"><div class="bd-sub-name">' + escapeHtml(x.item) + '</div>' +
+          '<div class="bd-sub-room">人均 ' + fmtYuan(x.perPerson) + note + '</div></div>' +
+          '<span class="bd-sub-amount">' + fmtYuan(x.amount) + '</span>' +
           '</div>';
-      });
-      html += '</div>';
-    }
-    html += '</div>';
+      }
+    });
+    html += '</div></div>';
   });
   html += '</div>';
 
@@ -1251,7 +1498,7 @@ function renderDay(di) {
     html += '<div class="pretrip"><div class="pt-label">' + escapeHtml(DATA.preTrip.label) + '</div>' +
       '<div class="pt-text">' + escapeHtml(DATA.preTrip.text) + '</div></div>';
   }
-  html += renderTimeline(di) + renderCards(di);
+  html += renderTimeline(di) + renderCards(di) + renderTickets(di) + renderTips(di);
   area.innerHTML = html;
   area.scrollTop = 0;
 }
@@ -1412,7 +1659,9 @@ let activeDay = 0;
 try { theme = localStorage.getItem('qingan-theme') || 'dark'; } catch(e) {}
 loadProgress();
 loadTodos();
+loadCustomTodos();
 loadPacking();
+loadCustomPacking();
 loadShootingShots();
 
 renderPacking();
